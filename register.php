@@ -66,9 +66,11 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 	<link rel="stylesheet" type="text/css" href="styles/login.css">
+	<script src="js/jquery-3.3.1.min.js"></script>
+	<script src="js/register.js"></script>
 	<title>Lets Make Plans :) </title>
 </head>
-<body>
+<body id="background">
 	<div class="jumbotron text-center">
 		<h1>Sign Up!</h1>
 	</div>
@@ -96,11 +98,22 @@
 					</div>
 					<div class="form-group-row">
 						<h3 class="pt-5">lets Customize!</h3>
-						<label for="profilePic" class="pl-1 col-form-label">Profile Pic</label>
-						<input class="col-md-12 m-auto form-control" type="text" name="profilePic" required>
+						<label for="profilePic" class="pl-0 float-left col-md-1 col-form-label">Profile Pic</label>
+						<input class="float-left col-md-3 m-auto form-control-file" type="file" name="profilePic">
+						
 					</div>
-					<div class="form-group-row mt-3">
-						<button type="submit" class="m-auto btn btn-primary" name="submit">
+					<p>Can't decide? No worries we got a default pic you can use in the mean time.</p>
+					<div class="form-group-row">
+						<label class="col-form-label" for="color">Theme!</label>
+						<div class="radio">
+  							<label><input type="radio" name="color" value="1">Classic White</label>
+						</div>
+						<div class="radio">
+  							<label><input type="radio" name="color" value="2">Night</label>
+						</div>
+					</div>
+					<div class="form-group-row pt-5">
+						<button type="submit" class=" m-auto btn btn-primary" name="submit">
 						Submit</button>
 					</div>
 					<div class="m-auto form-group-row">

@@ -11,12 +11,6 @@
 		$confirmPassword = filter_input(INPUT_POST, 'confirm-password',FILTER_SANITIZE_STRING);
 		$email = filter_input(INPUT_POST, 'email',FILTER_SANITIZE_EMAIL);
 
-		print_r($email);
-		print_r($lastName);
-		print_r($firstName);
-		print_r($password);
-		print_r($confirmPassword);
-
 		$validData = ($email && $confirmPassword && $password && $lastName && $firstName)? true:false;
 
 		$emailExists = false;
@@ -43,7 +37,7 @@
 					$statement->bindValue(':email',$email);
 					$statement->execute();
 
-					header("Location: login.php");
+					header("Location: index.php");
 				}
 				else
 				{
@@ -78,38 +72,47 @@
 	<div class="jumbotron text-center">
 		<h1>Sign Up!</h1>
 	</div>
-	<div class="row align-items-center justify-content-center">
-		<form method="post">
-			<div class="form-group-row" id="login">
-				<label for="firstName" class="col-lg-10 col-form-label">First Name:</label>
-				<div class="col-lg-10">
-					<input class="form-control" type="text" name="firstName" required>
-				</div>
-				<label for="lastName" class="col-lg-10 col-form-label">Last Name:</label>
-				<div class="col-lg-10">
-					<input class="form-control" type="text" name="lastName" required>
-				</div>
-				<label for="email" class="col-lg-10 col-form-label">Email</label>
-				<div class="col-lg-10">
-					<input class="form-control" type="email" name="email" required>
-				</div>
-				<label for="password" class="col-lg-10  col-form-label">Password</label>
-				<div class="col-lg-10">
-					<input class="form-control" type="password" name="password" required>
-				</div>
-				<label for="confirm-password" class="col-lg-10  col-form-label">Confirm Password</label>
-				<div class="col-lg-10">
-					<input class="form-control" type="password" name="confirm-password" required>
-				</div>	
+	<div class="container">
+		<div class="row align-items-center justify-content-center">
+		<div class="col-md">
+				<form method="post">
+					<div class="form-group-row">
+						<label for="firstName" class="pl-1 float-left col-form-label col-md-2">First Name</label>
+						<input class="float-left col-md-4 m-auto form-control" type="text" name="firstName" required>
+						<label for="lastName" class=" float-left col-md-2 col-form-label">Last Name</label>
+						<input class="float-left col-md-4 m-auto form-control" type="text" name="lastName" required>
+					</div>
+					<div class="form-group-row">
+						<label for="email" class="pl-1 col-form-label">Email</label>
+						<input class="col-md-12 m-auto form-control" type="email" name="email" required>
+					</div>
+					<div class="form-group-row">
+						<label for="password" class="pl-1 col-form-label">Password</label>
+						<input class="pl-1 m-auto col-md form-control" type="password" name="password" required>
+					</div>
+					<div class="form-group-row">
+						<label for="confirm-password" class="pl-1 col-form-label">Confirm Password</label>
+						<input class="m-auto col-md form-control" type="password" name="confirm-password" required>
+					</div>
+					<div class="form-group-row">
+						<h3 class="pt-5">lets Customize!</h3>
+						<label for="profilePic" class="pl-1 col-form-label">Profile Pic</label>
+						<input class="col-md-12 m-auto form-control" type="text" name="profilePic" required>
+					</div>
+					<div class="form-group-row mt-3">
+						<button type="submit" class="m-auto btn btn-primary" name="submit">
+						Submit</button>
+					</div>
+					<div class="m-auto form-group-row">
+						<div id="newUser" class="centered">
+							<?php if(isset($_SESSION['errorMessage']))	:?>
+									<p><?=$_SESSION['errorMessage']?></p>
+							<?php unset($_SESSION['errorMessage']); endif ?>
+						</div>
+					</div>
+				</form>
 			</div>
-			<div class="col-lg-1 col-offset-6 centered">
-			<button type="submit" class="btn btn-primary" name="submit">
-			Sign up</button>
 			</div>
-		</form>
-		<?php if(isset($_SESSION['errorMessage']))	:?>
-				<p><?=$_SESSION['errorMessage']?></p>
-		<?php unset($_SESSION['errorMessage']); endif ?>
-	</div>
+		</div>
 </body>
 </html>

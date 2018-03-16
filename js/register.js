@@ -4,7 +4,7 @@ $(document).ready(function(){
 
     $radio.change(function()
     {
-    	if($("input[name='color']:checked").val() == 1)
+    	if($("input[name='color']:checked").val() == "white")
     	{
     		$("label,p,h3").css("color","black");
     		$("body").css("background-color","white");

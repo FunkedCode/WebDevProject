@@ -27,17 +27,40 @@
 			{
 				if($password == $confirmPassword)
 				{
-					$hash = password_hash($password,PASSWORD_BCRYPT);
+					if($_FILES['profilePic']['error'] == 0)
+					{	
+						$fileName = basename($_FILES['profilePic']['name']);
 
-					$query = "INSERT INTO users (email,password,firstName,lastName,isAdmin) VALUES (:email,:password,:firstName,:lastName,0);";
-					$statement = $db->prepare($query);
-					$statement->bindValue(':firstName',$firstName);
-					$statement->bindValue(':lastName',$lastName);
-					$statement->bindValue(':password',$hash);
-					$statement->bindValue(':email',$email);
-					$statement->execute();
+						$imageDirectory = uploadImage($fileName,$lastName);
+		
+						if($imageDirectory != "")
+						{
+							$hash = password_hash($password,PASSWORD_BCRYPT);
 
-					header("Location: index.php");
+							$query = "INSERT INTO users (email,password,firstName,lastName,isAdmin) VALUES (:email,:password,:firstName,:lastName,0);";
+							$statement = $db->prepare($query);
+							$statement->bindValue(':firstName',$firstName);
+							$statement->bindValue(':lastName',$lastName);
+							$statement->bindValue(':password',$hash);
+							$statement->bindValue(':email',$email);
+							$statement->execute();
+
+							$userId = $db->lastInsertId();
+	
+							$imageQuery = "INSERT INTO userpages (creatorId,color,profilePicture) VALUES (:userId,:color,:image);";
+							$imageStatement = $db->prepare($imageQuery);
+							$imageStatement->bindValue(':userId',$userId);
+							$imageStatement->bindValue(':color',$_POST['color']);
+							$imageStatement->bindValue(':image',$imageDirectory);
+							$imageStatement->execute();
+
+							header("Location: index.php");
+						}
+						else
+						{
+							$_SESSION['errorMessage'] = "Unhelpful Robot: Somthing went wrong with your profile picture. Try another one.";
+						}
+					}
 				}
 				else
 				{
@@ -56,6 +79,35 @@
 		}
 
 	}
+
+	function uploadImage($fileName,$usersName)
+	{
+		$newDirectory = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR. 'userprofile'.DIRECTORY_SEPARATOR. $usersName;
+
+		if(!file_exists($newDirectory))
+		{
+			mkdir($newDirectory, 0700,true);
+		}
+
+		$fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
+
+		$newDirectory = $newDirectory.DIRECTORY_SEPARATOR.'profile.'.$fileExtension;
+
+		$acceptedTypes = ['JPEG','JPG','PNG','GIF'];
+
+		if(in_array(strtoupper($fileExtension),$acceptedTypes))
+		{
+			move_uploaded_file($_FILES['profilePic']['tmp_name'], $newDirectory);
+
+			return $newDirectory;
+		}
+		else
+		{
+			return null;
+		}
+
+	}
+
 ?>
 
 <!DOCTYPE html>
@@ -76,17 +128,19 @@
 	</div>
 	<div class="container">
 		<div class="row align-items-center justify-content-center">
-		<div class="col-md">
-				<form method="post">
+		<div class="col-md-6">
+				<form method="post" enctype="multipart/form-data">
 					<div class="form-group-row">
-						<label for="firstName" class="pl-1 float-left col-form-label col-md-2">First Name</label>
-						<input class="float-left col-md-4 m-auto form-control" type="text" name="firstName" required>
-						<label for="lastName" class=" float-left col-md-2 col-form-label">Last Name</label>
-						<input class="float-left col-md-4 m-auto form-control" type="text" name="lastName" required>
+						<label for="firstName" class="pl-1 col-form-label">First Name</label>
+						<input class="pl-1 m-auto col-md form-control" type="text" name="firstName" required>
+					</div>
+					<div class="form-group-row">
+						<label for="lastName" class="pl-1 col-form-label">Last Name</label>
+						<input class="pl-1 m-auto col-md form-control" type="text" name="lastName" required>
 					</div>
 					<div class="form-group-row">
 						<label for="email" class="pl-1 col-form-label">Email</label>
-						<input class="col-md-12 m-auto form-control" type="email" name="email" required>
+						<input class="pl-1 m-auto col-md form-control" type="email" name="email" required>
 					</div>
 					<div class="form-group-row">
 						<label for="password" class="pl-1 col-form-label">Password</label>
@@ -98,18 +152,14 @@
 					</div>
 					<div class="form-group-row">
 						<h3 class="pt-5">lets Customize!</h3>
-						<label for="profilePic" class="pl-0 float-left col-md-1 col-form-label">Profile Pic</label>
-						<input class="float-left col-md-3 m-auto form-control-file" type="file" name="profilePic">
-						
+						<label for="profilePic" class="pl-1 mb-5 float-left col-md-12 col-form-label">Profile Pic<input class="form-control-file" type="file" name="profilePic" id="profilePic"><img class="pt-3" src="images\userprofile\default.png"></label>					
 					</div>
-					<p>Can't decide? No worries we got a default pic you can use in the mean time.</p>
-					<div class="form-group-row">
-						<label class="col-form-label" for="color">Theme!</label>
+					<div class="form-group-row mt-3">
 						<div class="radio">
-  							<label><input type="radio" name="color" value="1">Classic White</label>
+  							<label><input type="radio" name="color" value="white" checked>Classic White</label>
 						</div>
 						<div class="radio">
-  							<label><input type="radio" name="color" value="2">Night</label>
+  							<label><input type="radio" name="color" value="black" selected>Night</label>
 						</div>
 					</div>
 					<div class="form-group-row pt-5">

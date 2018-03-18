@@ -1,0 +1,14 @@
+body
+{
+	background-color: #212121;
+}
+
+.jumbotron
+{
+	background-color: #484848;
+}
+
+label,p,h3,h1
+{
+	color: #FFF;
+}

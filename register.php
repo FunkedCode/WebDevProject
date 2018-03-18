@@ -1,4 +1,7 @@
 <?php
+	require 'vendor/autoload.php';
+	include './lib/ImageResize.php';
+	use \Gumlet\ImageResize;
 	require("php/connection.php");
 
 	session_start();
@@ -91,15 +94,19 @@
 
 		$fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
 
-		$newDirectory = $newDirectory.DIRECTORY_SEPARATOR.'profile.'.$fileExtension;
+		$imageLocation = $newDirectory.DIRECTORY_SEPARATOR.'profile.'.$fileExtension;
 
 		$acceptedTypes = ['JPEG','JPG','PNG','GIF'];
 
 		if(in_array(strtoupper($fileExtension),$acceptedTypes))
 		{
-			move_uploaded_file($_FILES['profilePic']['tmp_name'], $newDirectory);
+			move_uploaded_file($_FILES['profilePic']['tmp_name'], $imageLocation);
 
-			return $newDirectory;
+			$imageMedium = new ImageResize($imageLocation);
+			$imageMedium->resizeToBestFit(200,200);
+			$imageMedium->save($newDirectory.DIRECTORY_SEPARATOR.'profile.'.$fileExtension);
+
+			return 'images' . DIRECTORY_SEPARATOR. 'userprofile'.DIRECTORY_SEPARATOR. $usersName.DIRECTORY_SEPARATOR.'profile.'.$fileExtension;
 		}
 		else
 		{

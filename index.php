@@ -8,15 +8,22 @@ if(isset($_POST['submit']))
 
 	$email = filter_var(filter_input(INPUT_POST,'email',FILTER_SANITIZE_EMAIL),FILTER_VALIDATE_EMAIL);
 
-	$query = "SELECT email, password FROM users WHERE email = :email;";
+	$query = "SELECT email, password, firstName, lastName FROM users WHERE email = :email;";
 	$statement = $db->prepare($query);
 	$statement->bindValue(':email',$email);
 	$statement->execute();
 	$result = $statement->fetch();
 
-	if(empty($result) || !password_verify($_POST['password'],$result ['password'] ))
+	if(empty($result) || !password_verify($_POST['password'],$result['password'] ))
 	{
 		$_SESSION['message'] = 'Invalid Email or Password.';
+	}
+	else
+	{
+		$_SESSION['usersName'] = $result['firstName'].' '.$result['lastName'];
+		$_SESSION['email'] = $result['email'];
+
+		header("Location: main.php");
 	}
 }
 ?>
@@ -54,9 +61,9 @@ if(isset($_POST['submit']))
 					<div class="m-auto form-group-row">
 						<div id="newUser" class="centered">
 							<?php if(isset($_SESSION['message']))	:?>
-									<p>Invalid Email or Password.</p>
+									<strong>Invalid Email or Password.</strong>
 							<?php unset($_SESSION['message']); endif ?>
-							<p>New user? Come join us!</p>
+							<p class="pt-5">New user? Come join us!</p>
 							<a href="register.php">Sign up</a>
 						</div>
 					</div>

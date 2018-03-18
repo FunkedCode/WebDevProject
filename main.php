@@ -1,6 +1,28 @@
 <?php
 require("php/connection.php");
 
+session_start();
+
+if(isset($_SESSION['email']))
+{
+	$queryId = "SELECT userId FROM users WHERE email = :email;";
+	$statementId = $db->prepare($queryId);
+	$statementId->bindValue(':email',$_SESSION['email']);
+	$statementId->execute();
+	$userId = $statementId->fetch();
+
+	$query = "SELECT color, profilePicture FROM userPages WHERE creatorId = :userId;";
+	$statement = $db->prepare($query);
+	$statement->bindValue(':userId', $userId['userId']);
+	$statement->execute();
+	$result = $statement->fetch();
+
+	$_SESSION['theme'] = $result['color'].'theme.css';
+	$_SESSION['profilePicture'] = $result['profilePicture'];
+
+
+}
+
 
 ?>
 
@@ -11,41 +33,35 @@ require("php/connection.php");
 	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-	<link rel="stylesheet" type="text/css" href="styles/login.css">
+	<link rel="stylesheet" type="text/css" href="styles/<?=$_SESSION['theme']?>">
+	<link rel="stylesheet" type="text/css" href="styles/main.css">
 	<title>Lets Make Plans :) </title>
 </head>
 <body>
-	<div class="jumbotron text-center">
-		<h1>Login</h1>
-	</div>
-	<div class="container">
-		<div class="row align-items-center justify-content-center">
-			<div class="col-md-4">
-				<form method="post">
-					<div class="form-group-row">
-						<label for="email" class="col-form-label">Email</label>
-						<input class="col-md-12 m-auto form-control" type="email" name="email" required>
-					</div>
-					<div class="form-group-row">
-						<label for="password" class=" col-form-label">Password</label>
-						<input class="m-auto col-md form-control" type="password" name="password" required>
-					</div>
-					<div class="form-group-row mt-3">
-						<button type="submit" class="m-auto btn btn-primary" name="submit">
-						Submit</button>
-					</div>
-					<div class="m-auto form-group-row">
-						<div id="newUser" class="centered">
-							<?php if(isset($_SESSION['message']))	:?>
-									<p>Invalid Email or Password.</p>
-							<?php unset($_SESSION['message']); endif ?>
-							<p>New user? Come join us!</p>
-							<a href="register.php">Sign up</a>
-						</div>
-					</div>
-				</form>
-			</div>
+	<?php if (isset($_SESSION['email'])) :?>
+	<div class="jumbotron">
+		<div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+    		<div class="hovereffect">
+        		<img class="img-responsive" src="<?=$_SESSION['profilePicture']?>" alt="">
+            	<div class="overlay">
+						<p>
+							<a href="#">Profile</a>
+						</p>
+						<p>
+							<a href="logout.php">Logout</a>
+						</p>
+            	</div>
+    		</div>
 		</div>
+		<h1><?=$_SESSION['usersName']?></h1>
+    </div>
+</div>
+	<div class="container">
+		<h3>Login was a success!</h3>
+		<p>A users main feed will go here, links to their profile as well as admin tasks if admin will also appear here in future milestones.</p>
 	</div>
+<?php else: header('Location: index.php');?>
+<?php endif?>
+
 </body>
 </html>

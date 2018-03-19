@@ -5,23 +5,32 @@ session_start();
 
 if(isset($_SESSION['email']))
 {
+	//User Info
 	$queryId = "SELECT userId FROM users WHERE email = :email;";
 	$statementId = $db->prepare($queryId);
 	$statementId->bindValue(':email',$_SESSION['email']);
 	$statementId->execute();
 	$userId = $statementId->fetch();
 
-	$query = "SELECT color, profilePicture FROM userPages WHERE creatorId = :userId;";
-	$statement = $db->prepare($query);
-	$statement->bindValue(':userId', $userId['userId']);
-	$statement->execute();
-	$result = $statement->fetch();
+	$queryUserInfo = "SELECT color, profilePicture FROM userPages WHERE creatorId = :userId;";
+	$statementUserInfo = $db->prepare($queryUserInfo);
+	$statementUserInfo->bindValue(':userId', $userId['userId']);
+	$statementUserInfo->execute();
+	$userInfo = $statementUserInfo->fetch();
 
-	$_SESSION['theme'] = $result['color'].'theme.css';
-	$_SESSION['profilePicture'] = $result['profilePicture'];
+	$_SESSION['theme'] = $userInfo['color'].'theme.css';
+	$_SESSION['profilePicture'] = $userInfo['profilePicture'];
 
+	//Posts
+	$queryEvents = "SELECT date,description, eventName,pictureDirectory, approved,firstName,lastName FROM events,users WHERE userId = creatorId;";
+	$statementEvents = $db->prepare($queryEvents);
+	$statementEvents->execute();
+	$posts = $statementEvents->fetchAll();
+
+	//print_r($posts);
 
 }
+
 
 
 ?>
@@ -56,9 +65,25 @@ if(isset($_SESSION['email']))
 		<h1><?=$_SESSION['usersName']?></h1>
     </div>
 </div>
-	<div class="container">
-		<h3>Login was a success!</h3>
-		<p>A users main feed will go here, links to their profile as well as admin tasks if admin will also appear here in future milestones.</p>
+	<div class='container'>
+		<div class="row mx-auto">
+    		<div class="col-md">
+				<h3 class="pb-3">Login was a success!</h3>
+				<?php if(empty($posts)): ?>
+				<p>Hmm, nothing is here.</p>
+			<?php else: 
+				  foreach ($posts as $post):?>
+				  <div class="card p-2">
+				  	<h4><?=$post['eventName']?></h4>
+				  	<h5>Description</h5>
+				  	<p><?=$post['description']?></p>
+				  	<strong><?=$post['date']?></strong>
+				  	<small>Proposed by: <?=$post['firstName'].' '.$post['lastName']?></small>
+				  </div>
+				 <?php endforeach?>
+			<?php endif ?>
+    		</div>
+  		</div>
 	</div>
 <?php else: header('Location: index.php');?>
 <?php endif?>

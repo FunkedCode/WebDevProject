@@ -30,11 +30,14 @@
 			{
 				if($password == $confirmPassword)
 				{
-					if($_FILES['profilePic']['error'] == 0)
-					{	
-						$fileName = basename($_FILES['profilePic']['name']);
+						
+						$imageDirectory = 'images' . DIRECTORY_SEPARATOR. 'userprofile'.DIRECTORY_SEPARATOR.'default.png';
 
-						$imageDirectory = uploadImage($fileName,$lastName);
+						if($_FILES['profilePic']['name'] != '' && $_FILES['profilePic']['error'] == 0)
+						{
+							$fileName = basename($_FILES['profilePic']['name']);
+							$imageDirectory = uploadImage($fileName,$lastName);
+						}
 		
 						if($imageDirectory != "")
 						{
@@ -63,7 +66,7 @@
 						{
 							$_SESSION['errorMessage'] = "Unhelpful Robot: Somthing went wrong with your profile picture. Try another one.";
 						}
-					}
+					
 				}
 				else
 				{

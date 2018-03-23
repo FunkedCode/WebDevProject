@@ -174,7 +174,7 @@
 					</div>
 					<div class="form-group-row pt-5">
 						<button type="submit" class=" m-auto btn btn-primary" name="submit">
-						Submit</button>
+						Sign up</button>
 					</div>
 					<div class="m-auto form-group-row">
 						<div id="newUser" class="centered">

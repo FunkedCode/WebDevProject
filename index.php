@@ -56,7 +56,7 @@ if(isset($_POST['submit']))
 					</div>
 					<div class="form-group-row mt-3">
 						<button type="submit" class="m-auto btn btn-primary" name="submit">
-						Submit</button>
+						Login</button>
 					</div>
 					<div class="m-auto form-group-row">
 						<div id="newUser" class="centered">

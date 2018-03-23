@@ -44,6 +44,7 @@ if(isset($_SESSION['email']))
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 	<link rel="stylesheet" type="text/css" href="styles/<?=$_SESSION['theme']?>">
 	<link rel="stylesheet" type="text/css" href="styles/main.css">
+	<script type="text/javascript" src="js/main.js"></script>
 	<title>Lets Make Plans :) </title>
 </head>
 <body>
@@ -65,14 +66,40 @@ if(isset($_SESSION['email']))
 		<h1><?=$_SESSION['usersName']?></h1>
     </div>
 </div>
-	<div class='container'>
-		<div class="row mx-auto">
-    		<div class="col-md">
-				<h3 class="pb-3">Login was a success!</h3>
+<div class="row mx-auto">
+	<div class="col-lg-3 mr-1 border">
+    			<h4 class="mb-3">Make a new Event.</h4>
+    			<button class="btn btn-primary mb-3" id="makePlan">Make Plans!</button>
+    			<form method="post" style="display: none;" id="eventForm">
+    				<h2>Whats the Plan?</h2>
+					<div class="form-group-row">
+						<label for="eventName" class="col-form-label">Name of Event</label>
+						<input class="col-md-12 m-auto form-control" type="text" name="eventName" required>
+					</div>
+					<div class="form-group-row">
+						<label for="description" class=" col-form-label">Description</label>
+						<textarea class="m-auto col-md form-control" rows="5" id="comment"></textarea>
+					</div>
+					<div class="form-group-row">
+						<label for="date" class="col-form-label">Date</label>
+						<input class="col-md-12 m-auto form-control" type="text" name="date" required>
+					</div>
+					<div class="form-group-row">
+						<label for="eventPicture" class="pl-0 mb-5 float-left col-md-12 col-form-label">Picture<input class="form-control-file" type="file" name="eventPicture" id="eventPicture"></label>					
+					</div>
+					<div class="form-group-row mt-3 mb-3">
+						<button type="submit" class="m-auto btn btn-primary" name="submit">
+						Submit</button>
+					</div>
+				</form>
+			</div>
+	<div class='col-lg-6 border'> 		
 				<?php if(empty($posts)): ?>
 				<p>Hmm, nothing is here.</p>
-			<?php else: 
-				  foreach ($posts as $post):?>
+			<?php else: ?>
+				<div class="">
+				<h2>Share and Vote.</h2>
+				 <?php foreach ($posts as $post):?>
 				  <div class="card p-2">
 				  	<h4><?=$post['eventName']?></h4>
 				  	<h5>Description</h5>
@@ -81,6 +108,7 @@ if(isset($_SESSION['email']))
 				  	<small>Proposed by: <?=$post['firstName'].' '.$post['lastName']?></small>
 				  </div>
 				 <?php endforeach?>
+				</div>
 			<?php endif ?>
     		</div>
   		</div>

@@ -3,6 +3,9 @@ require("php/connection.php");
 
 session_start();
 
+date_default_timezone_set('America/Winnipeg');
+$date = strftime('%Y-%m-%dT%H:%M:%S', time());
+
 if(isset($_SESSION['email']))
 {
 	//User Info
@@ -22,13 +25,26 @@ if(isset($_SESSION['email']))
 	$_SESSION['profilePicture'] = $userInfo['profilePicture'];
 
 	//Posts
-	$queryEvents = "SELECT date,description, eventName,pictureDirectory, approved,firstName,lastName FROM events,users WHERE userId = creatorId;";
+	$queryEvents = "SELECT date,description, eventName,pictureDirectory, approved,firstName,lastName FROM events,users WHERE userId = creatorId ORDER BY date;";
 	$statementEvents = $db->prepare($queryEvents);
 	$statementEvents->execute();
 	$posts = $statementEvents->fetchAll();
 
 	//print_r($posts);
+}
 
+if(isset($_POST['submitEvent']))
+{
+	//$eventName
+	//$comment
+	//$date
+	$query = "INSERT INTO users (email,password,firstName,lastName,isAdmin) VALUES (:email,:password,:firstName,:lastName,0);";
+	$statement = $db->prepare($query);
+	$statement->bindValue(':firstName',$firstName);
+	$statement->bindValue(':lastName',$lastName);
+ 	$statement->bindValue(':password',$hash);
+	$statement->bindValue(':email',$email);
+	$statement->execute();
 }
 
 
@@ -50,7 +66,7 @@ if(isset($_SESSION['email']))
 <body>
 	<?php if (isset($_SESSION['email'])) :?>
 	<div class="jumbotron">
-		<div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+		<div class="col-lg-12 col-md-4 col-sm-6 col-xs-12">
     		<div class="hovereffect">
         		<img class="img-responsive" src="<?=$_SESSION['profilePicture']?>" alt="">
             	<div class="overlay">
@@ -62,8 +78,10 @@ if(isset($_SESSION['email']))
 						</p>
             	</div>
     		</div>
-		</div>
+		
 		<h1><?=$_SESSION['usersName']?></h1>
+		<h2 class="display-1 text-muted display-4" >Lets make plans...</h2>
+	</div>
     </div>
 </div>
 <div class="row mx-auto">
@@ -80,16 +98,15 @@ if(isset($_SESSION['email']))
 						<label for="description" class=" col-form-label">Description</label>
 						<textarea class="m-auto col-md form-control" rows="5" id="comment"></textarea>
 					</div>
-					<div class="form-group-row">
+					<!-- <div class="form-group-row">
 						<label for="date" class="col-form-label">Date</label>
-						<input class="col-md-12 m-auto form-control" type="text" name="date" required>
-					</div>
+						<input class="col-md-12 m-auto form-control" value="<?=$date?>" type="datetime-local" name="date" required>
+					</div> -->
 					<div class="form-group-row">
 						<label for="eventPicture" class="pl-0 mb-5 float-left col-md-12 col-form-label">Picture<input class="form-control-file" type="file" name="eventPicture" id="eventPicture"></label>					
 					</div>
 					<div class="form-group-row mt-3 mb-3">
-						<button type="submit" class="m-auto btn btn-primary" name="submit">
-						Submit</button>
+						<button type="submit" id="submitEvent" class="m-auto btn btn-primary" name="submitEvent">Submit</button>
 					</div>
 				</form>
 			</div>
@@ -101,8 +118,8 @@ if(isset($_SESSION['email']))
 				<h2>Share and Vote.</h2>
 				 <?php foreach ($posts as $post):?>
 				  <div class="card p-2">
-				  	<h4><?=$post['eventName']?></h4>
-				  	<h5>Description</h5>
+				  	<h5><?=$post['eventName']?></h5>
+				  	<h6>Description</h6>
 				  	<p><?=$post['description']?></p>
 				  	<strong><?=$post['date']?></strong>
 				  	<small>Proposed by: <?=$post['firstName'].' '.$post['lastName']?></small>

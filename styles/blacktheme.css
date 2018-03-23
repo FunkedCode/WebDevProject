@@ -1,6 +1,6 @@
 body
 {
-	background-color: #212121;
+	background-color: #4a515e;
 }
 
 .jumbotron
@@ -8,7 +8,7 @@ body
 	background-color: #484848;
 }
 
-label,p,h3,h1
+label,h3,h1,h2,h4
 {
 	color: #FFF;
 }

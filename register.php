@@ -1,9 +1,6 @@
 <?php
-	require 'vendor/autoload.php';
-	include './lib/ImageResize.php';
-	use \Gumlet\ImageResize;
-	require("php/connection.php");
-
+	require 'uploadimage.php';
+	
 	session_start();
 
 	if(isset($_POST['submit']))
@@ -12,9 +9,9 @@
 		$lastName = filter_input(INPUT_POST, 'lastName',FILTER_SANITIZE_STRING);
 		$password = filter_input(INPUT_POST, 'password',FILTER_SANITIZE_STRING);
 		$confirmPassword = filter_input(INPUT_POST, 'confirm-password',FILTER_SANITIZE_STRING);
-		$email = filter_input(INPUT_POST, 'email',FILTER_SANITIZE_EMAIL);
+		$email = filter_var(filter_input(INPUT_POST,'email',FILTER_SANITIZE_EMAIL),FILTER_VALIDATE_EMAIL);
 
-		$validData = ($email && $confirmPassword && $password && $lastName && $firstName)? true:false;
+		$validData = ($email && $confirmPassword && $password && $lastName && $firstName);
 
 		$emailExists = false;
 
@@ -86,37 +83,7 @@
 
 	}
 
-	function uploadImage($fileName,$usersName)
-	{
-		$newDirectory = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR. 'userprofile'.DIRECTORY_SEPARATOR. $usersName;
-
-		if(!file_exists($newDirectory))
-		{
-			mkdir($newDirectory, 0700,true);
-		}
-
-		$fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
-
-		$imageLocation = $newDirectory.DIRECTORY_SEPARATOR.'profile.'.$fileExtension;
-
-		$acceptedTypes = ['JPEG','JPG','PNG','GIF'];
-
-		if(in_array(strtoupper($fileExtension),$acceptedTypes))
-		{
-			move_uploaded_file($_FILES['profilePic']['tmp_name'], $imageLocation);
-
-			$imageMedium = new ImageResize($imageLocation);
-			$imageMedium->resizeToBestFit(200,200);
-			$imageMedium->save($newDirectory.DIRECTORY_SEPARATOR.'profile.'.$fileExtension);
-
-			return 'images' . DIRECTORY_SEPARATOR. 'userprofile'.DIRECTORY_SEPARATOR. $usersName.DIRECTORY_SEPARATOR.'profile.'.$fileExtension;
-		}
-		else
-		{
-			return null;
-		}
-
-	}
+	
 
 ?>
 

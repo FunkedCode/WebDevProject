@@ -2,7 +2,6 @@
 	require 'vendor/autoload.php';
 	include './lib/ImageResize.php';
 	use \Gumlet\ImageResize;
-	require("php/connection.php");
 	
 	function uploadImage($fileName,$usersName)
 	{

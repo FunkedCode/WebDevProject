@@ -1,5 +1,7 @@
 <?php
+
 require("php/connection.php");
+require 'uploadEventImage.php';
 
 session_start();
 
@@ -15,6 +17,7 @@ if(isset($_SESSION['email']))
 	$statementId->execute();
 	$userId = $statementId->fetch();
 
+	//Page info
 	$queryUserInfo = "SELECT color, profilePicture FROM userPages WHERE creatorId = :userId;";
 	$statementUserInfo = $db->prepare($queryUserInfo);
 	$statementUserInfo->bindValue(':userId', $userId['userId']);
@@ -25,26 +28,37 @@ if(isset($_SESSION['email']))
 	$_SESSION['profilePicture'] = $userInfo['profilePicture'];
 
 	//Posts
-	$queryEvents = "SELECT date,description, eventName,pictureDirectory, approved,firstName,lastName FROM events,users WHERE userId = creatorId ORDER BY date;";
+	$queryEvents = "SELECT description, eventName,pictureDirectory, approved,firstName,lastName FROM events,users WHERE userId = creatorId ORDER BY eventId DESC;";
 	$statementEvents = $db->prepare($queryEvents);
 	$statementEvents->execute();
 	$posts = $statementEvents->fetchAll();
 
-	//print_r($posts);
 }
 
 if(isset($_POST['submitEvent']))
 {
-	//$eventName
-	//$comment
-	//$date
-	$query = "INSERT INTO users (email,password,firstName,lastName,isAdmin) VALUES (:email,:password,:firstName,:lastName,0);";
-	$statement = $db->prepare($query);
-	$statement->bindValue(':firstName',$firstName);
-	$statement->bindValue(':lastName',$lastName);
- 	$statement->bindValue(':password',$hash);
-	$statement->bindValue(':email',$email);
-	$statement->execute();
+	$eventName = filter_var($_POST['eventName'],FILTER_SANITIZE_STRING);
+	$description = filter_var($_POST['description'],FILTER_SANITIZE_STRING);
+
+	$imageDirectory = 'images' . DIRECTORY_SEPARATOR. 'events'.DIRECTORY_SEPARATOR.'default.png';
+
+	if($_FILES['eventPicture']['name'] != '' && $_FILES['eventPicture']['error'] == 0)
+	{
+		$fileName = basename($_FILES['eventPicture']['name']);
+		$imageDirectory = uploadEventImage($fileName ,$eventName);
+	}
+
+	$queryEventInsert = "INSERT INTO events (creatorId,eventName,description,pictureDirectory,approved) VALUES (:userId,:eventName,:description,:image,0);";
+	$statementEventInsert = $db->prepare($queryEventInsert);
+	$statementEventInsert->bindValue(':userId',$userId['userId']);
+	$statementEventInsert->bindValue(':eventName',$eventName);
+	$statementEventInsert->bindValue(':description',$description);
+	$statementEventInsert->bindValue(':image',$imageDirectory);
+	$statementEventInsert->execute();
+
+	 header('Location: main.php');
+
+
 }
 
 
@@ -88,7 +102,7 @@ if(isset($_POST['submitEvent']))
 	<div class="col-lg-3 mr-1 border">
     			<h4 class="mb-3">Make a new Event.</h4>
     			<button class="btn btn-primary mb-3" id="makePlan">Make Plans!</button>
-    			<form method="post" style="display: none;" id="eventForm">
+    			<form enctype="multipart/form-data" method="post" style="display: none;" id="eventForm">
     				<h2>Whats the Plan?</h2>
 					<div class="form-group-row">
 						<label for="eventName" class="col-form-label">Name of Event</label>
@@ -96,7 +110,7 @@ if(isset($_POST['submitEvent']))
 					</div>
 					<div class="form-group-row">
 						<label for="description" class=" col-form-label">Description</label>
-						<textarea class="m-auto col-md form-control" rows="5" id="comment"></textarea>
+						<textarea class="m-auto col-md form-control" rows="5" name="description" id="description"></textarea>
 					</div>
 					<!-- <div class="form-group-row">
 						<label for="date" class="col-form-label">Date</label>
@@ -114,14 +128,16 @@ if(isset($_POST['submitEvent']))
 				<?php if(empty($posts)): ?>
 				<p>Hmm, nothing is here.</p>
 			<?php else: ?>
-				<div class="">
+				<div class="m-3">
 				<h2>Share and Vote.</h2>
 				 <?php foreach ($posts as $post):?>
-				  <div class="card p-2">
+				  <div class="card p-3 mb-3">
 				  	<h5><?=$post['eventName']?></h5>
+				  	<div class="p-3">
+				  		<img class="img-fluid" src="<?=$post['pictureDirectory']?>">
+				  	</div>
 				  	<h6>Description</h6>
 				  	<p><?=$post['description']?></p>
-				  	<strong><?=$post['date']?></strong>
 				  	<small>Proposed by: <?=$post['firstName'].' '.$post['lastName']?></small>
 				  </div>
 				 <?php endforeach?>

@@ -1,4 +1,5 @@
 <?php
+	require("php/connection.php");
 	require 'uploadimage.php';
 	
 	session_start();

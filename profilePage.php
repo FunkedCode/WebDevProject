@@ -100,8 +100,11 @@ if(isset($_POST['submitEvent']))
     		<div class="hovereffect">
         		<img class="img-responsive" src="<?=$_SESSION['profilePicture']?>" alt="">
             	<div class="overlay">
+            		<p>
+							<a href="main.php">Home</a>
+						</p>
 						<p>
-							<a href="profilePage.php">Profile</a>
+							<a href="#">Profile</a>
 						</p>
 						<p>
 							<a href="logout.php">Logout</a>

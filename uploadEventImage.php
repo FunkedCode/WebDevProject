@@ -3,13 +3,14 @@
 	include './lib/ImageResize.php';
 	use \Gumlet\ImageResize;
 	
-	function uploadEventImage($fileName,$eventName)
+	function uploadEventImage($fileName,$eventId, $db)
 	{
-		$newDirectory = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'images' .DIRECTORY_SEPARATOR. 'events'.DIRECTORY_SEPARATOR.$eventName;
+
+		$newDirectory = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'images' .DIRECTORY_SEPARATOR. 'events'.DIRECTORY_SEPARATOR.$eventId;
 		if(!file_exists($newDirectory))
 		{
+			echo "here";
 			mkdir($newDirectory, 0700,true);
-			echo $newDirectory;
 		}
 
 		$fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
@@ -26,11 +27,11 @@
 			$imageMedium->scale(50);
 			$imageMedium->save($newDirectory.DIRECTORY_SEPARATOR.'event.'.$fileExtension);
 
-			return 'images' . DIRECTORY_SEPARATOR. 'events'.DIRECTORY_SEPARATOR. $eventName.DIRECTORY_SEPARATOR.'event.'.$fileExtension;
+			return 'images' . DIRECTORY_SEPARATOR. 'events'.DIRECTORY_SEPARATOR. $eventId.DIRECTORY_SEPARATOR.'event.'.$fileExtension;
 		}
 		else
 		{
-			return null;
+			return 'images' . DIRECTORY_SEPARATOR. $eventId.DIRECTORY_SEPARATOR.'default.png';
 		}
 
 	}

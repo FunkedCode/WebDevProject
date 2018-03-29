@@ -1,6 +1,6 @@
 <?php
 //TO DO:
-//User can delete their events 5
+//User can delete their events 5 DONE
 //Link to edit event Link to unique Profile 5
 //Add composer project 5
 //Add captcha 5
@@ -12,7 +12,7 @@ session_start();
 date_default_timezone_set('America/Winnipeg');
 $date = strftime('%Y-%m-%dT%H:%M:%S', time());
 
-if(isset($_SESSION['email']))
+if(isset($_SESSION['email']) && isset($_GET['event']))
 {
 	//User Info
 	$queryId = "SELECT userId FROM users WHERE email = :email;";
@@ -32,50 +32,44 @@ if(isset($_SESSION['email']))
 	$_SESSION['profilePicture'] = $userInfo['profilePicture'];
 
 	//Posts
-	$queryEvents = "SELECT eventId,creatorId, description, eventName,pictureDirectory, approved,firstName,lastName 
+	$queryEvents = "SELECT creatorId, description, eventName,pictureDirectory, approved,firstName,lastName 
 				    FROM events,users 
-				    WHERE userId = creatorId ORDER BY eventId DESC;";
+				    WHERE userId = creatorId AND creatorId = :currentUser AND eventId = :selectedEvent ORDER BY eventId DESC;";
 	$statementEvents = $db->prepare($queryEvents);
+	$statementEvents->bindValue(':currentUser', $userId['userId']);
+	$statementEvents->bindValue(':selectedEvent', $_GET['event']);
 	$statementEvents->execute();
-	$posts = $statementEvents->fetchAll();
+	$post = $statementEvents->fetch();
 
 }
 
-//Create a new event
-if(isset($_POST['submitEvent']))
+if(isset($_POST['updateEvent']))
 {
+
 	$eventName = filter_var($_POST['eventName'],FILTER_SANITIZE_STRING);
 	$description = filter_var($_POST['description'],FILTER_SANITIZE_STRING);
-	
-	$queryEventInsert = "INSERT INTO events (creatorId,eventName,description,approved) VALUES (:userId,:eventName,:description,0);";
-	$statementEventInsert = $db->prepare($queryEventInsert);
-	$statementEventInsert->bindValue(':userId',$userId['userId']);
-	$statementEventInsert->bindValue(':eventName',$eventName);
-	$statementEventInsert->bindValue(':description',$description);
-	$statementEventInsert->execute();
 
-	$eventId = $db->lastInsertId();
-
-	$imageDirectory = 'images' . DIRECTORY_SEPARATOR.'events'.DIRECTORY_SEPARATOR.'default.png';
+	$updateEvent = "UPDATE events 
+					SET eventName = :eventName,
+					description = :description
+					WHERE eventId = :selectedEvent;";
+	$updateStatement = $db->prepare($updateEvent);
+	$updateStatement->bindValue(':eventName', $eventName);
+	$updateStatement->bindValue(':description', $description);
+	$updateStatement->bindValue(':selectedEvent', $_GET['event']);
+	$updateStatement->execute();
 
 	if($_FILES['eventPicture']['name'] != '' && $_FILES['eventPicture']['error'] == 0)
 	{
 		$fileName = basename($_FILES['eventPicture']['name']);
-		$imageDirectory = uploadEventImage($fileName ,$eventId,$db);
+		$imageDirectory = uploadEventImage($fileName ,$_GET['event'],$db);
 	}
-
-	$updateImage = "UPDATE events 
-					SET pictureDirectory = :image
-					WHERE eventId = :selectedEvent;";
-
-	$updateStatement = $db->prepare($updateImage);
-	$updateStatement->bindValue(':image', $imageDirectory);
-	$updateStatement->bindValue(':selectedEvent', $eventId);
-	$updateStatement->execute();
 
 	header('Location: main.php');
 
 }
+
+
 
 ?>
 
@@ -84,7 +78,6 @@ if(isset($_POST['submitEvent']))
 <head>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 	<link rel="stylesheet" type="text/css" href="styles/<?=$_SESSION['theme']?>">
@@ -101,7 +94,7 @@ if(isset($_POST['submitEvent']))
         		<img class="img-responsive" src="<?=$_SESSION['profilePicture']?>" alt="">
             	<div class="overlay">
 						<p>
-							<a href="profilePage.php">Profile</a>
+							<a href="#">Profile</a>
 						</p>
 						<p>
 							<a href="logout.php">Logout</a>
@@ -115,52 +108,29 @@ if(isset($_POST['submitEvent']))
     </div>
 </div>
 <div class="row mx-auto">
-	<div class="col-lg-3 mr-1 border">
-    	<h4 class="mb-3">Make a new Event.</h4>
-    	<button class="btn btn-primary mb-3" id="makePlan">Make Plans!</button>
-    	<form enctype="multipart/form-data" method="post" style="display: none;" id="eventForm">
-
-    		<h2>Whats the Plan?</h2>
-
+	<div class="col-lg-5 mr-1 border mx-auto">
+    	<form enctype="multipart/form-data" method="post" id="eventForm">
+    		<h2><?=$post['eventName']?></h2>
 			<div class="form-group-row">
 				<label for="eventName" class="col-form-label">Name of Event</label>
-				<input class="col-md-12 m-auto form-control" type="text" name="eventName" required>
+				<input class="col-md-12 m-auto form-control" type="text" name="eventName" required value="<?=$post['eventName']?>">
 			</div>
 			<div class="form-group-row">
 				<label for="description" class=" col-form-label">Description</label>
-				<textarea class="m-auto col-md form-control" rows="5" name="description" id="description"></textarea>
+				<textarea class="m-auto col-md form-control" rows="5" name="description" id="description"><?=$post['description']?></textarea>
 			</div>
 			<div class="form-group-row">
 				<label for="eventPicture" class="pl-0 mb-5 float-left col-md-12 col-form-label">Picture<input class="form-control-file" type="file" name="eventPicture" id="eventPicture"></label>					
 			</div>
+			<div class="form-group-row">
+				<img src="<?=$post['pictureDirectory']?>">			
+			</div>
 			<div class="form-group-row mt-3 mb-3">
-				<button type="submit" id="submitEvent" class="m-auto btn btn-primary" name="submitEvent">Submit</button>
+				<button type="submit" id="updateEvent" class="m-auto btn btn-primary" name="updateEvent">Update</button>
+				<a class="float-right" href="deletePost.php?event=<?=$_GET['event']?>">delete</a>
 			</div>
 		</form>
 	</div>
-	<div class='col-lg-6 border'> 		
-		<?php if(empty($posts)): ?>
-			<p>Hmm, nothing is here.</p>
-		<?php else: ?>
-			<div class="m-3">
-				<h2>Share and Vote.</h2>
-				 <?php foreach ($posts as $post):?>
-				  	<div class="card p-3 mb-3">
-				  		<h5><?=$post['eventName']?></h5>
-				  		<div class="p-3">
-				  			<img class="img-fluid" src="<?=$post['pictureDirectory']?>">
-				  		</div>
-				  		<h6>Description</h6>
-				  		<p><?=$post['description']?></p>
-				  		<small>Proposed by: <?=$post['firstName'].' '.$post['lastName']?></small>
-				  		<?php if ($post['creatorId'] == $userId['userId']) :?>		  			
-				  			<p><a href="editPost.php?event=<?=$post['eventId']?>">edit</a>
-				  		<?php endif?>
-				  	</div>
-				 <?php endforeach?>
-			</div>
-		<?php endif ?>
-    </div>
 </div>
 <?php else: header('Location: index.php');?>
 <?php endif?>

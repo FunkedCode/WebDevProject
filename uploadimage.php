@@ -30,7 +30,7 @@
 		}
 		else
 		{
-			return null;
+			return 'images' . DIRECTORY_SEPARATOR.'events'.DIRECTORY_SEPARATOR.'default.png';
 		}
 
 	}

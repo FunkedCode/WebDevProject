@@ -15,7 +15,7 @@ $date = strftime('%Y-%m-%dT%H:%M:%S', time());
 if(isset($_SESSION['email']) && isset($_GET['event']))
 {
 	//User Info
-	$queryId = "SELECT userId FROM users WHERE email = :email;";
+	$queryId = "SELECT userId,isAdmin FROM users WHERE email = :email;";
 	$statementId = $db->prepare($queryId);
 	$statementId->bindValue(':email',$_SESSION['email']);
 	$statementId->execute();
@@ -34,9 +34,8 @@ if(isset($_SESSION['email']) && isset($_GET['event']))
 	//Posts
 	$queryEvents = "SELECT creatorId, description, eventName,pictureDirectory, approved,firstName,lastName 
 				    FROM events,users 
-				    WHERE userId = creatorId AND creatorId = :currentUser AND eventId = :selectedEvent ORDER BY eventId DESC;";
+				    WHERE userId = creatorId AND eventId = :selectedEvent ORDER BY eventId DESC;";
 	$statementEvents = $db->prepare($queryEvents);
-	$statementEvents->bindValue(':currentUser', $userId['userId']);
 	$statementEvents->bindValue(':selectedEvent', $_GET['event']);
 	$statementEvents->execute();
 	$post = $statementEvents->fetch();
@@ -86,12 +85,12 @@ if(isset($_POST['updateEvent']))
 	<title>Lets Make Plans :) </title>
 </head>
 <body>
-	<?php if (isset($_SESSION['email'])) :?>
+	<?php if (isset($_SESSION['email']) && ($userId['userId'] == $post['creatorId'] || $userId['isAdmin']))  :?>
 	<div class="jumbotron">
 		<div class="col-lg-12 col-md-4 col-sm-6 col-xs-12">
 			<!-- https://miketricking.github.io/bootstrap-image-hover -->
     		<div class="hovereffect">
-        		<img class="img-responsive" src="<?=$_SESSION['profilePicture']?>" alt="">
+        		<img class="img-responsive" src="<?=$_SESSION['profilePicture']?>" alt="profilePicture">
             	<div class="overlay">
 						<p>
 							<a href="#">Profile</a>
@@ -132,7 +131,7 @@ if(isset($_POST['updateEvent']))
 		</form>
 	</div>
 </div>
-<?php else: header('Location: index.php');?>
+<?php else: header('Location: main.php');?>
 <?php endif?>
 </body>
 </html>

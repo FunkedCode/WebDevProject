@@ -9,13 +9,10 @@ require 'uploadEventImage.php';
 
 session_start();
 
-date_default_timezone_set('America/Winnipeg');
-$date = strftime('%Y-%m-%dT%H:%M:%S', time());
-
 if(isset($_SESSION['email']))
 {
 	//User Info
-	$queryId = "SELECT userId FROM users WHERE email = :email;";
+	$queryId = "SELECT userId, isAdmin FROM users WHERE email = :email;";
 	$statementId = $db->prepare($queryId);
 	$statementId->bindValue(':email',$_SESSION['email']);
 	$statementId->execute();
@@ -32,7 +29,7 @@ if(isset($_SESSION['email']))
 	$_SESSION['profilePicture'] = $userInfo['profilePicture'];
 
 	//Posts
-	$queryEvents = "SELECT eventId,creatorId, description, eventName,pictureDirectory, approved,firstName,lastName 
+	$queryEvents = "SELECT eventId,creatorId, description, eventName,pictureDirectory, approved,firstName,lastName, isAdmin
 				    FROM events,users 
 				    WHERE userId = creatorId ORDER BY eventId DESC;";
 	$statementEvents = $db->prepare($queryEvents);
@@ -76,6 +73,7 @@ if(isset($_POST['submitEvent']))
 	header('Location: main.php');
 
 }
+
 
 ?>
 
@@ -153,7 +151,7 @@ if(isset($_POST['submitEvent']))
 				  		<h6>Description</h6>
 				  		<p><?=$post['description']?></p>
 				  		<small>Proposed by: <?=$post['firstName'].' '.$post['lastName']?></small>
-				  		<?php if ($post['creatorId'] == $userId['userId']) :?>		  			
+				  		<?php if ($post['creatorId'] == $userId['userId'] || $userId['isAdmin'] == 1) :?>		  			
 				  			<p><a href="editPost.php?event=<?=$post['eventId']?>">edit</a>
 				  		<?php endif?>
 				  	</div>

@@ -5,77 +5,65 @@
 //Add composer project 5
 //Add captcha 5
 require("php/connection.php");
-require 'uploadEventImage.php';
+require 'uploadImage.php';
 
 session_start();
 
 date_default_timezone_set('America/Winnipeg');
-$date = strftime('%Y-%m-%dT%H:%M:%S', time());
+$date = date("Y-m-d");
+$successMessage = "";
 
 if(isset($_SESSION['email']))
 {
 	//User Info
-	$queryId = "SELECT userId FROM users WHERE email = :email;";
+	$queryId = "SELECT userId, lastName FROM users WHERE email = :email;";
 	$statementId = $db->prepare($queryId);
 	$statementId->bindValue(':email',$_SESSION['email']);
 	$statementId->execute();
 	$userId = $statementId->fetch();
 
-	//Page info
-	$queryUserInfo = "SELECT color, profilePicture FROM userPages WHERE creatorId = :userId;";
-	$statementUserInfo = $db->prepare($queryUserInfo);
-	$statementUserInfo->bindValue(':userId', $userId['userId']);
-	$statementUserInfo->execute();
-	$userInfo = $statementUserInfo->fetch();
-
-	$_SESSION['theme'] = $userInfo['color'].'theme.css';
-	$_SESSION['profilePicture'] = $userInfo['profilePicture'];
-
-	//Posts
-	$queryEvents = "SELECT eventId,creatorId, description, eventName,pictureDirectory, approved,firstName,lastName 
-				    FROM events,users 
-				    WHERE userId = creatorId ORDER BY eventId DESC;";
-	$statementEvents = $db->prepare($queryEvents);
-	$statementEvents->execute();
-	$posts = $statementEvents->fetchAll();
-
 }
 
-//Create a new event
-if(isset($_POST['submitEvent']))
+if(isset($_POST['addDate']))
 {
-	$eventName = filter_var($_POST['eventName'],FILTER_SANITIZE_STRING);
-	$description = filter_var($_POST['description'],FILTER_SANITIZE_STRING);
-	
-	$queryEventInsert = "INSERT INTO events (creatorId,eventName,description,approved) VALUES (:userId,:eventName,:description,0);";
-	$statementEventInsert = $db->prepare($queryEventInsert);
-	$statementEventInsert->bindValue(':userId',$userId['userId']);
-	$statementEventInsert->bindValue(':eventName',$eventName);
-	$statementEventInsert->bindValue(':description',$description);
-	$statementEventInsert->execute();
+	$date = preg_replace("([^0-9/])", "", $_POST['date']);
 
-	$eventId = $db->lastInsertId();
-
-	$imageDirectory = 'images' . DIRECTORY_SEPARATOR.'events'.DIRECTORY_SEPARATOR.'default.png';
-
-	if($_FILES['eventPicture']['name'] != '' && $_FILES['eventPicture']['error'] == 0)
+	if($date != null)
 	{
-		$fileName = basename($_FILES['eventPicture']['name']);
-		$imageDirectory = uploadEventImage($fileName ,$eventId,$db);
+		$addDate = "INSERT INTO availabledays (creatorId,date) VALUES(:userId, :date);";
+		$addDateStatement = $db->prepare($addDate);
+		$addDateStatement->bindValue(':userId',$userId['userId']);
+		$addDateStatement->bindValue(':date',$date);
+		$addDateStatement->execute();
+
+		$successMessage = "Date Added!";
+	}
+}
+
+if(isset($_POST['changeProfile']))
+{
+	$imageDirectory = 'images' . DIRECTORY_SEPARATOR. 'userprofile'.DIRECTORY_SEPARATOR.'default.png';
+
+	if($_FILES['profilePic']['name'] != '' && $_FILES['profilePic']['error'] == 0)
+	{
+		$fileName = basename($_FILES['profilePic']['name']);
+		$imageDirectory = uploadImage($fileName ,$userId['lastName']);
 	}
 
-	$updateImage = "UPDATE events 
-					SET pictureDirectory = :image
-					WHERE eventId = :selectedEvent;";
+	$updateProfile = "UPDATE userpages 
+					SET color = :color,
+					profilePicture = :picture
+					WHERE creatorId = :userId;";
+	$updateProfileStatement = $db->prepare($updateProfile);
+	$updateProfileStatement->bindValue(':color', $_POST['color']);
+	$updateProfileStatement->bindValue(':picture', $imageDirectory);
+	$updateProfileStatement->bindValue(':userId', $userId['userId']);
+	$updateProfileStatement->execute();
 
-	$updateStatement = $db->prepare($updateImage);
-	$updateStatement->bindValue(':image', $imageDirectory);
-	$updateStatement->bindValue(':selectedEvent', $eventId);
-	$updateStatement->execute();
-
-	header('Location: main.php');
+	header('Location: profilePage.php');
 
 }
+
 
 ?>
 
@@ -90,17 +78,18 @@ if(isset($_POST['submitEvent']))
 	<link rel="stylesheet" type="text/css" href="styles/<?=$_SESSION['theme']?>">
 	<link rel="stylesheet" type="text/css" href="styles/main.css">
 	<script type="text/javascript" src="js/main.js"></script>
+	<script src="js/profile.js"></script>
 	<title>Lets Make Plans :) </title>
 </head>
 <body>
 	<?php if (isset($_SESSION['email'])) :?>
-	<div class="jumbotron">
-		<div class="col-lg-12 col-md-4 col-sm-6 col-xs-12">
-			<!-- https://miketricking.github.io/bootstrap-image-hover -->
-    		<div class="hovereffect">
-        		<img class="img-responsive" src="<?=$_SESSION['profilePicture']?>" alt="">
-            	<div class="overlay">
-            		<p>
+		<div class="jumbotron">
+			<div class="col-lg-12 col-md-4 col-sm-6 col-xs-12">
+				<!-- https://miketricking.github.io/bootstrap-image-hover -->
+				<div class="hovereffect">
+					<img class="img-responsive" src="<?=$_SESSION['profilePicture']?>" alt="">
+					<div class="overlay">
+						<p>
 							<a href="main.php">Home</a>
 						</p>
 						<p>
@@ -109,63 +98,53 @@ if(isset($_POST['submitEvent']))
 						<p>
 							<a href="logout.php">Logout</a>
 						</p>
-            	</div>
-    		</div>
-		
-		<h1><?=$_SESSION['usersName']?></h1>
-		<h2 class="display-1 text-muted display-4" >Lets make plans...</h2>
-	</div>
-    </div>
-</div>
-<div class="row mx-auto">
-	<div class="col-lg-3 mr-1 border">
-    	<h4 class="mb-3">Make a new Event.</h4>
-    	<button class="btn btn-primary mb-3" id="makePlan">Make Plans!</button>
-    	<form enctype="multipart/form-data" method="post" style="display: none;" id="eventForm">
+					</div>
+				</div>
 
-    		<h2>Whats the Plan?</h2>
-
-			<div class="form-group-row">
-				<label for="eventName" class="col-form-label">Name of Event</label>
-				<input class="col-md-12 m-auto form-control" type="text" name="eventName" required>
+				<h1><?=$_SESSION['usersName']?></h1>
+				<h2 class="display-1 text-muted display-4" >Lets make plans...</h2>
 			</div>
-			<div class="form-group-row">
-				<label for="description" class=" col-form-label">Description</label>
-				<textarea class="m-auto col-md form-control" rows="5" name="description" id="description"></textarea>
-			</div>
-			<div class="form-group-row">
-				<label for="eventPicture" class="pl-0 mb-5 float-left col-md-12 col-form-label">Picture<input class="form-control-file" type="file" name="eventPicture" id="eventPicture"></label>					
-			</div>
-			<div class="form-group-row mt-3 mb-3">
-				<button type="submit" id="submitEvent" class="m-auto btn btn-primary" name="submitEvent">Submit</button>
-			</div>
-		</form>
+		</div>
 	</div>
-	<div class='col-lg-6 border'> 		
-		<?php if(empty($posts)): ?>
-			<p>Hmm, nothing is here.</p>
-		<?php else: ?>
-			<div class="m-3">
-				<h2>Share and Vote.</h2>
-				 <?php foreach ($posts as $post):?>
-				  	<div class="card p-3 mb-3">
-				  		<h5><?=$post['eventName']?></h5>
-				  		<div class="p-3">
-				  			<img class="img-fluid" src="<?=$post['pictureDirectory']?>">
-				  		</div>
-				  		<h6>Description</h6>
-				  		<p><?=$post['description']?></p>
-				  		<small>Proposed by: <?=$post['firstName'].' '.$post['lastName']?></small>
-				  		<?php if ($post['creatorId'] == $userId['userId']) :?>		  			
-				  			<p><a href="editPost.php?event=<?=$post['eventId']?>">edit</a>
-				  		<?php endif?>
-				  	</div>
-				 <?php endforeach?>
+	<div class="row">
+		<div class="ml-5 col-lg-6">
+			<form method="post" enctype="multipart/form-data">
+				<div class="form-group-row">
+					<h3 class="">Change it up!</h3>
+					<label for="profilePic" class="pl-1 mb-5 float-left col-md-12 col-form-label">Profile Pic<input class="form-control-file" type="file" name="profilePic" id="profilePic"><img class="pt-3" src="images\userprofile\default.png"></label>					
+				</div>
+				<div class="form-group-row mt-3">
+					<div class="radio">
+						<label><input type="radio" name="color" value="white" checked>Classic White</label>
+					</div>
+					<div class="radio">
+						<label><input type="radio" name="color" value="black" selected>Night</label>
+					</div>
+				</div>
+				<div class="form-group-row pt-5">
+					<button type="submit" class=" m-auto btn btn-primary" name="changeProfile">Change Profile</button>
+				</div>
+				<div class="m-auto form-group-row">
+					<div id="newUser" class="centered">
+						<?php if(isset($_SESSION['errorMessage']))	:?>
+							<p><?=$_SESSION['errorMessage']?></p>
+							<?php unset($_SESSION['errorMessage']); endif ?>
+						</div>
+					</div>
+				</form>
 			</div>
-		<?php endif ?>
-    </div>
-</div>
-<?php else: header('Location: index.php');?>
-<?php endif?>
+			<div class=" col-lg-5">
+				<h2 class="pb-3">When are you Available?</h2>
+				<form method="post">
+					<input id="date" name="date" type="date" min="<?=$date?>" value="<?=$date?>">
+					<button type="submit" class=" m-auto btn btn-primary" name="addDate">Add Availablity</button>
+				</form>
+				<?php if ($successMessage != "") :?>
+					<p><?=$successMessage?></p>
+				<?php endif ?>
+			</div>
+		</div>
+	<?php else: header('Location: index.php');?>
+	<?php endif?>
 </body>
 </html>

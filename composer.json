@@ -1,6 +1,6 @@
-
 {
     "require": {
-        "gumlet/php-image-resize": "1.8.*"
+        "gumlet/php-image-resize": "1.8.*",
+        "components/bootstrap-datetimepicker": "^2.4"
     }
 }

@@ -1,21 +1,43 @@
 <?php
-	require("php/connection.php");
-	require 'uploadimage.php';
+
+require("php/connection.php");
+require 'uploadimage.php';
+use Gregwar\Captcha\CaptchaBuilder;
+
 	
-	session_start();
+session_start();
 
-	if(isset($_POST['submit']))
+$builder = new CaptchaBuilder;
+$builder->build();
+
+if(!isset($_SESSION['firstName']))
+{
+	$_SESSION['firstName'] = "First name";
+	$_SESSION['lastName'] = "Last name";
+	$_SESSION['email'] = "Email";
+}
+
+
+if(!isset($_POST['captcha']))
+{
+	$_SESSION['phrase'] = $builder->getPhrase();
+}
+	
+
+if(isset($_POST['submit']))
+{
+	$firstName = filter_input(INPUT_POST, 'firstName',FILTER_SANITIZE_STRING);
+	$lastName = filter_input(INPUT_POST, 'lastName',FILTER_SANITIZE_STRING);
+	$password = filter_input(INPUT_POST, 'password',FILTER_SANITIZE_STRING);
+	$confirmPassword = filter_input(INPUT_POST, 'confirm-password',FILTER_SANITIZE_STRING);
+	$email = filter_var(filter_input(INPUT_POST,'email',FILTER_SANITIZE_EMAIL),FILTER_VALIDATE_EMAIL);
+
+	$validData = ($email && $confirmPassword && $password && $lastName && $firstName);
+
+	$emailExists = false;
+
+	if($_SESSION['phrase'] == $_POST['captcha']) 
 	{
-		$firstName = filter_input(INPUT_POST, 'firstName',FILTER_SANITIZE_STRING);
-		$lastName = filter_input(INPUT_POST, 'lastName',FILTER_SANITIZE_STRING);
-		$password = filter_input(INPUT_POST, 'password',FILTER_SANITIZE_STRING);
-		$confirmPassword = filter_input(INPUT_POST, 'confirm-password',FILTER_SANITIZE_STRING);
-		$email = filter_var(filter_input(INPUT_POST,'email',FILTER_SANITIZE_EMAIL),FILTER_VALIDATE_EMAIL);
-
-		$validData = ($email && $confirmPassword && $password && $lastName && $firstName);
-
-		$emailExists = false;
-
 		if($validData)
 		{
 			$emailCheckQuery = "SELECT email FROM users WHERE email = :email;";
@@ -63,26 +85,52 @@
 						else
 						{
 							$_SESSION['errorMessage'] = "Unhelpful Robot: Somthing went wrong with your profile picture. Try another one.";
+
+							setUserSession();
 						}
 					
 				}
 				else
 				{
 					$_SESSION['errorMessage'] = "Unhelpful Robot: Your password does not match 'Confirm Password', try again.";
+
+					setUserSession();
 				}
 				
 			}
 			else
 			{
 				$_SESSION['errorMessage'] = "Unhelpful Robot: It seems this email is in use.";
+
+				setUserSession();
 			}
 		}
 		else
 		{
 			$_SESSION['errorMessage'] = "Unhelpful Robot: Invalid input detected, beep boop";
-		}
 
+			setUserSession();
+		}
 	}
+	else
+	{
+		$_SESSION['errorMessage'] = "Unhelpful Robot: Invalid Captcha detected";
+
+		$_SESSION['phrase'] = $builder->getPhrase();
+		
+		unset($_POST['captcha']);
+
+		setUserSession();
+	}
+
+}
+
+function setUserSession()
+{
+	$_SESSION['firstName'] = "First name";
+	$_SESSION['lastName'] = "Last name";
+	$_SESSION['email'] = "Email";
+}
 
 	
 
@@ -110,15 +158,15 @@
 				<form method="post" enctype="multipart/form-data">
 					<div class="form-group-row">
 						<label for="firstName" class="pl-1 col-form-label">First Name</label>
-						<input class="pl-1 m-auto col-md form-control" type="text" name="firstName" required>
+						<input class="pl-1 m-auto col-md form-control" type="text" name="firstName" required value="<?=$_SESSION['firstName']?>">
 					</div>
 					<div class="form-group-row">
 						<label for="lastName" class="pl-1 col-form-label">Last Name</label>
-						<input class="pl-1 m-auto col-md form-control" type="text" name="lastName" required>
+						<input class="pl-1 m-auto col-md form-control" type="text" name="lastName" value="<?=$_SESSION['lastName']?>" required>
 					</div>
 					<div class="form-group-row">
 						<label for="email" class="pl-1 col-form-label">Email</label>
-						<input class="pl-1 m-auto col-md form-control" type="email" name="email" required>
+						<input class="pl-1 m-auto col-md form-control" type="email" name="email" value="<?=$_SESSION['email']?>" required>
 					</div>
 					<div class="form-group-row">
 						<label for="password" class="pl-1 col-form-label">Password</label>
@@ -139,6 +187,13 @@
 						<div class="radio">
   							<label><input type="radio" name="color" value="black" selected>Night</label>
 						</div>
+					</div>
+					<div class="form-group-row mt-3">
+						<label for="captcha">No Robots Allowed!</label>
+						<div class="form-group-row mt-3 mb-3">
+							<img src="<?=$builder->inline(); ?>" />
+						</div>
+						<input id="captcha" type="text" name="captcha" placeholder="Enter Captcha">
 					</div>
 					<div class="form-group-row pt-5">
 						<button type="submit" class=" m-auto btn btn-primary" name="submit">

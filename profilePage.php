@@ -93,9 +93,6 @@ if(isset($_POST['changeProfile']))
 							<a href="main.php">Home</a>
 						</p>
 						<p>
-							<a href="#">Profile</a>
-						</p>
-						<p>
 							<a href="logout.php">Logout</a>
 						</p>
 					</div>
@@ -134,7 +131,7 @@ if(isset($_POST['changeProfile']))
 				</form>
 			</div>
 			<div class=" col-lg-5">
-				<h2 class="pb-3">When are you Available?</h2>
+				<h2 class="pb-3 pt-3">When are you Available?</h2>
 				<form method="post">
 					<input id="date" name="date" type="date" min="<?=$date?>" value="<?=$date?>">
 					<button type="submit" class=" m-auto btn btn-primary" name="addDate">Add Availablity</button>

@@ -34,6 +34,12 @@ if(isset($_SESSION['email']))
 	$statementEvents->execute();
 	$posts = $statementEvents->fetchAll();
 
+	//Votes
+	$userVotes = "SELECT event,user,votes FROM votes;";
+	$statementUserVotes = $db->prepare($userVotes);
+	$statementUserVotes->execute();
+	$votes = $statementUserVotes->fetchAll();
+
 }
 
 //Create a new event
@@ -81,12 +87,13 @@ if(isset($_POST['submitEvent']))
 
 if(isset($_POST['yes']))
 {
-	$userVoted = "SELECT event,user FROM votes WHERE user = :userId AND event = :eventId;";
+	$userVoted = "SELECT 1 FROM votes WHERE user = :userId AND event = :eventId;";
 	$statementUserVoted = $db->prepare($userVoted);
 	$statementUserVoted->bindValue(':userId',$userId['userId']);
-	$statementUserVoted->bindValue(':event',$_POST['eventVoted']);
-
-	if($statementUserVoted->rowCount() > 0)
+	$statementUserVoted->bindValue(':eventId',$_POST['eventVoted']);
+	$statementUserVoted->execute();
+	
+	if($statementUserVoted->rowCount() == 0)
 	{
 		$queryVote = "INSERT INTO votes (event,user,votes) VALUES (:event,:userId,1);";
 		$statementVote = $db->prepare($queryVote);
@@ -188,6 +195,12 @@ if(isset($_POST['yes']))
 				  				<input type="submit" class="btn btn-primary input-sm" value="Yes!" name="yes" />
 				  				<input type="hidden" name="eventVoted" id="hiddenField" value="<?=$post['eventId']?>" />
 				  			</form>
+				  			<?php $voteSum = 0; foreach ($votes as $vote) :?>
+				  				<?php if ($vote['event'] == $post['eventId']) :?>
+				  					<?php $voteSum++;?>
+								<?php endif ?>
+				  			<?php endforeach?>
+				  			<p><?=$voteSum ?></p>
 				  		</div>
 				  		<small>Proposed by: <?=$post['firstName'].' '.$post['lastName']?></small>
 				  		<?php if ($post['creatorId'] == $userId['userId'] || $userId['isAdmin'] == 1) :?>		  			

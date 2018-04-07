@@ -5,6 +5,7 @@ require("php/connection.php");
 require 'uploadEventImage.php';
 
 session_start();
+$_SESSION['error'] = null;
 
 if(isset($_SESSION['email']))
 {
@@ -168,6 +169,11 @@ if(isset($_POST['yes']))
 		<?php else: ?>
 			<div class="m-3">
 				<h2>Share and Vote.</h2>
+				<?php if (isset($_SESSION['error'] )) :?>				 
+				  <div class="alert alert-warning">
+  					<strong><?=$_SESSION['error']?></strong>
+				 </div>
+				 <?php endif?>
 				 <?php foreach ($posts as $post):?>
 				  	<div class="card p-3 mb-3">
 				  		<h5><?=$post['eventName']?></h5>
@@ -182,9 +188,6 @@ if(isset($_POST['yes']))
 				  				<input type="submit" class="btn btn-primary input-sm" value="Yes!" name="yes" />
 				  				<input type="hidden" name="eventVoted" id="hiddenField" value="<?=$post['eventId']?>" />
 				  			</form>
-				  			<?php if (isset($_SESSION['error'] )) :?>
-				  				<p><?=$_SESSION['error']?> </p>
-				  			<?php endif?>
 				  		</div>
 				  		<small>Proposed by: <?=$post['firstName'].' '.$post['lastName']?></small>
 				  		<?php if ($post['creatorId'] == $userId['userId'] || $userId['isAdmin'] == 1) :?>		  			

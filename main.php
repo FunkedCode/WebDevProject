@@ -1,9 +1,6 @@
 <?php
 //TO DO:
-//User can delete their events 5
-//Link to edit event Link to unique Profile 5
-//Add composer project 5
-//Add captcha 5
+
 require("php/connection.php");
 require 'uploadEventImage.php';
 
@@ -70,7 +67,36 @@ if(isset($_POST['submitEvent']))
 	$updateStatement->bindValue(':selectedEvent', $eventId);
 	$updateStatement->execute();
 
+	//Add event to voteing table
+	$queryVote = "INSERT INTO votes (event,user,votes) VALUES (:event,:userId,1);";
+	$statementVote = $db->prepare($queryVote);
+	$statementVote->bindValue(':userId',$userId['userId']);
+	$statementVote->bindValue(':event',$eventId);
+	$statementVote->execute();
+
 	header('Location: main.php');
+
+}
+
+if(isset($_POST['yes']))
+{
+	$userVoted = "SELECT event,user FROM votes WHERE user = :userId AND event = :eventId;";
+	$statementUserVoted = $db->prepare($userVoted);
+	$statementUserVoted->bindValue(':userId',$userId['userId']);
+	$statementUserVoted->bindValue(':event',$_POST['eventVoted']);
+
+	if($statementUserVoted->rowCount() > 0)
+	{
+		$queryVote = "INSERT INTO votes (event,user,votes) VALUES (:event,:userId,1);";
+		$statementVote = $db->prepare($queryVote);
+		$statementVote->bindValue(':userId',$userId['userId']);
+		$statementVote->bindValue(':event',$_POST['eventVoted']);
+		$statementVote->execute();
+	}
+	else
+	{
+		$_SESSION['error'] = "Sorry you can only vote once.";
+	}
 
 }
 
@@ -150,6 +176,16 @@ if(isset($_POST['submitEvent']))
 				  		</div>
 				  		<h6>Description</h6>
 				  		<p><?=$post['description']?></p>
+				  		<h6>Good Idea?</h6>
+				  		<div class=" mb-3">
+				  			<form method="post">
+				  				<input type="submit" class="btn btn-primary input-sm" value="Yes!" name="yes" />
+				  				<input type="hidden" name="eventVoted" id="hiddenField" value="<?=$post['eventId']?>" />
+				  			</form>
+				  			<?php if (isset($_SESSION['error'] )) :?>
+				  				<p><?=$_SESSION['error']?> </p>
+				  			<?php endif?>
+				  		</div>
 				  		<small>Proposed by: <?=$post['firstName'].' '.$post['lastName']?></small>
 				  		<?php if ($post['creatorId'] == $userId['userId'] || $userId['isAdmin'] == 1) :?>		  			
 				  			<p><a href="editPost.php?event=<?=$post['eventId']?>">edit</a>

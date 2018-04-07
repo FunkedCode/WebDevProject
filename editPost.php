@@ -92,8 +92,11 @@ if(isset($_POST['updateEvent']))
     		<div class="hovereffect">
         		<img class="img-responsive" src="<?=$_SESSION['profilePicture']?>" alt="profilePicture">
             	<div class="overlay">
+            		<p>
+							<a href="main.php">Home</a>
+						</p>
 						<p>
-							<a href="#">Profile</a>
+							<a href="profilePage.php">Profile</a>
 						</p>
 						<p>
 							<a href="logout.php">Logout</a>

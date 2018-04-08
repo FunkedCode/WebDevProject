@@ -7,7 +7,23 @@ require("php/connection.php");
 require 'uploadEventImage.php';
 
 session_start();
+
 $_SESSION['error'] = null;
+
+$orderBy = 'eventId DESC';
+
+//Set order by
+if(isset($_POST['orderBy']))
+{
+		if ($_POST['orderBy'] == 'name') 
+		{
+			$orderBy = 'eventName';
+		}
+		else if($_POST['orderBy'] == 'creator')
+		{
+			$orderBy = 'creatorId DESC';
+		}
+}
 
 if(isset($_SESSION['email']))
 {
@@ -31,7 +47,7 @@ if(isset($_SESSION['email']))
 	//Posts
 	$queryEvents = "SELECT eventId,creatorId, description, eventName,pictureDirectory, approved,firstName,lastName, isAdmin
 				    FROM events,users 
-				    WHERE userId = creatorId ORDER BY eventId DESC;";
+				    WHERE userId = creatorId ORDER BY $orderBy;";
 	$statementEvents = $db->prepare($queryEvents);
 	$statementEvents->execute();
 	$posts = $statementEvents->fetchAll();
@@ -87,6 +103,7 @@ if(isset($_POST['submitEvent']))
 
 }
 
+//Add a vote
 if(isset($_POST['yes']))
 {
 	$userVoted = "SELECT 1 FROM votes WHERE user = :userId AND event = :eventId;";
@@ -177,12 +194,23 @@ if(isset($_POST['yes']))
 			<p>Hmm, nothing is here.</p>
 		<?php else: ?>
 			<div class="m-3">
+				<form method="post" class="float-right form-inline">
+					<label>Sort By: </label>
+					<div class="form-group">
+				 	<select class="form-control ml-3" size="1" name="orderBy" onchange="this.form.submit()">
+				 		<option value="date" <?php if($orderBy == 'eventId DESC'):?> selected <?php endif?> >Date Proposed</option>
+				 		<option value="name" <?php if($orderBy == 'eventName') :?> selected <?php endif?> >Name</option>
+				 		<option value="creator" <?php if($orderBy == 'creatorId DESC') :?> selected <?php endif?> >Host</option>	
+				 	</select>
+				 </div>
+				 </form>
 				<h2>Share and Vote.</h2>
 				<?php if (isset($_SESSION['error'] )) :?>				 
 				  <div class="alert alert-warning">
   					<strong><?=$_SESSION['error']?></strong>
 				 </div>
 				 <?php endif?>
+				 
 				 <?php foreach ($posts as $post):?>
 				  	<div class="card p-3 mb-3">
 				  		<h5><?=$post['eventName']?></h5>

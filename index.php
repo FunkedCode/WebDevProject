@@ -40,7 +40,8 @@ if(isset($_POST['submit']))
 </head>
 <body>
 	<div class="jumbotron text-center">
-		<h1>Login</h1>
+		<h1>Make Plans - An Event Planer</h1>
+		<img class="img-rounded" src="images/login.jpg">
 	</div>
 	<div class="container">
 		<div class="row align-items-center justify-content-center">

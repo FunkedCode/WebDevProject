@@ -1,6 +1,5 @@
 <?php
 //TO DO:
-//Sort page events
 //Add pretty links
 //Delete profile picture (reset to default remove pic in directory)
 require("php/connection.php");
@@ -166,7 +165,7 @@ if(isset($_POST['yes']))
     </div>
 </div>
 <div class="row mx-auto">
-	<div class="col-lg-3 mr-1 border">
+	<div class="section col-lg-3 mr-3 border rounded">
     	<h4 class="mb-3">Make a new Event.</h4>
     	<button class="btn btn-primary mb-3" id="makePlan">Make Plans!</button>
     	<form enctype="multipart/form-data" method="post" style="display: none;" id="eventForm">
@@ -189,7 +188,7 @@ if(isset($_POST['yes']))
 			</div>
 		</form>
 	</div>
-	<div class='col-lg-6 border'> 		
+	<div class='col-lg-6 border section'> 		
 		<?php if(empty($posts)): ?>
 			<p>Hmm, nothing is here.</p>
 		<?php else: ?>
@@ -212,7 +211,7 @@ if(isset($_POST['yes']))
 				 <?php endif?>
 				 
 				 <?php foreach ($posts as $post):?>
-				  	<div class="card p-3 mb-3">
+				  	<div class="bg-light card p-3 mb-3">
 				  		<h5><?=$post['eventName']?></h5>
 				  		<div class="p-3">
 				  			<img class="img-fluid" src="<?=$post['pictureDirectory']?>">

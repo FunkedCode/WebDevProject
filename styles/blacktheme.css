@@ -1,14 +1,24 @@
 body
 {
-	background-color: #4a515e;
+	background-color: #141d26;
 }
 
 .jumbotron
 {
-	background-color: #484848;
+	background-color: #0b1016;
 }
 
 label,h3,h1,h2,h4
 {
-	color: #FFF;
+	color: #ffffff;
+}
+
+a
+{
+	color: #c51f5d;
+}
+
+.section
+{
+	background-color: #243447;
 }

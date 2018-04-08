@@ -1,6 +1,8 @@
 <?php
 //TO DO:
-
+//Sort page events
+//Add pretty links
+//Delete profile picture (reset to default remove pic in directory)
 require("php/connection.php");
 require 'uploadEventImage.php';
 
@@ -92,7 +94,7 @@ if(isset($_POST['yes']))
 	$statementUserVoted->bindValue(':userId',$userId['userId']);
 	$statementUserVoted->bindValue(':eventId',$_POST['eventVoted']);
 	$statementUserVoted->execute();
-	
+
 	if($statementUserVoted->rowCount() == 0)
 	{
 		$queryVote = "INSERT INTO votes (event,user,votes) VALUES (:event,:userId,1);";
@@ -188,24 +190,29 @@ if(isset($_POST['yes']))
 				  			<img class="img-fluid" src="<?=$post['pictureDirectory']?>">
 				  		</div>
 				  		<h6>Description</h6>
-				  		<p><?=$post['description']?></p>
-				  		<h6>Good Idea?</h6>
-				  		<div class=" mb-3">
-				  			<form method="post">
-				  				<input type="submit" class="btn btn-primary input-sm" value="Yes!" name="yes" />
-				  				<input type="hidden" name="eventVoted" id="hiddenField" value="<?=$post['eventId']?>" />
-				  			</form>
+				  		<p><?=$post['description']?></p>		  		
+				  		<div class="mb-3">	  			
 				  			<?php $voteSum = 0; foreach ($votes as $vote) :?>
 				  				<?php if ($vote['event'] == $post['eventId']) :?>
 				  					<?php $voteSum++;?>
 								<?php endif ?>
-				  			<?php endforeach?>
-				  			<p><?=$voteSum ?></p>
+				  			<?php endforeach?>	
 				  		</div>
-				  		<small>Proposed by: <?=$post['firstName'].' '.$post['lastName']?></small>
-				  		<?php if ($post['creatorId'] == $userId['userId'] || $userId['isAdmin'] == 1) :?>		  			
-				  			<p><a href="editPost.php?event=<?=$post['eventId']?>">edit</a>
-				  		<?php endif?>
+				  		<div class="container pl-0">
+							<div class="float-left">		  		
+				  				<small>Proposed by: <?=$post['firstName'].' '.$post['lastName']?></small>
+				  				<?php if ($post['creatorId'] == $userId['userId'] || $userId['isAdmin'] == 1) :?>		  			
+				  					<p><a href="editPost.php?event=<?=$post['eventId']?>">edit</a>
+				  				<?php endif?>
+				  			</div>
+				  			<div class="float-right">
+				  				<h6>Want to do this?</h6>
+				  				<form method="post" class="float-right">
+				  					<input type="submit" class="btn btn-primary input-sm" value="Yes!" name="yes" />
+				  					<input type="hidden" name="eventVoted" id="hiddenField" value="<?=$post['eventId']?>" />
+				  				</form>
+				  			</div>
+				  		</div>
 				  	</div>
 				 <?php endforeach?>
 			</div>

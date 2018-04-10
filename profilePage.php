@@ -1,9 +1,5 @@
 <?php
-//TO DO:
-//User can delete their events 5
-//Link to edit event Link to unique Profile 5
-//Add composer project 5
-//Add captcha 5
+
 require("php/connection.php");
 require 'uploadImage.php';
 
@@ -43,7 +39,7 @@ if(isset($_POST['addDate']))
 if(isset($_POST['changeProfile']))
 {
 	$imageDirectory = 'images' . DIRECTORY_SEPARATOR. 'userprofile'.DIRECTORY_SEPARATOR.'default.png';
-
+	
 	if($_FILES['profilePic']['name'] != '' && $_FILES['profilePic']['error'] == 0)
 	{
 		$fileName = basename($_FILES['profilePic']['name']);
@@ -60,7 +56,7 @@ if(isset($_POST['changeProfile']))
 	$updateProfileStatement->bindValue(':userId', $userId['userId']);
 	$updateProfileStatement->execute();
 
-	header('Location: profilePage.php');
+	header('Location: main.php');
 
 }
 
@@ -77,13 +73,12 @@ if(isset($_POST['changeProfile']))
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 	<link rel="stylesheet" type="text/css" href="styles/<?=$_SESSION['theme']?>">
 	<link rel="stylesheet" type="text/css" href="styles/main.css">
-	<script type="text/javascript" src="js/main.js"></script>
 	<script src="js/profile.js"></script>
 	<title>Lets Make Plans :) </title>
 </head>
 <body>
 	<?php if (isset($_SESSION['email'])) :?>
-		<div class="jumbotron">
+		<div class="jumbotron" id="header">
 			<div class="col-lg-12 col-md-4 col-sm-6 col-xs-12">
 				<!-- https://miketricking.github.io/bootstrap-image-hover -->
 				<div class="hovereffect">

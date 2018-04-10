@@ -39,7 +39,7 @@ if(isset($_POST['submit']))
 	<title>Lets Make Plans :) </title>
 </head>
 <body>
-	<div class="jumbotron text-center">
+	<div class="jumbotron text-center" id="header">
 		<h1>Make Plans - An Event Planer</h1>
 		<img class="img-rounded" src="images/login.jpg">
 	</div>

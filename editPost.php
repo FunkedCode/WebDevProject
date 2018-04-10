@@ -46,7 +46,7 @@ if(isset($_POST['updateEvent']))
 {
 
 	$eventName = filter_var($_POST['eventName'],FILTER_SANITIZE_STRING);
-	$description = filter_var($_POST['description'],FILTER_SANITIZE_STRING);
+	$description = $_POST['description'];
 
 	$updateEvent = "UPDATE events 
 					SET eventName = :eventName,
@@ -82,11 +82,13 @@ if(isset($_POST['updateEvent']))
 	<link rel="stylesheet" type="text/css" href="styles/<?=$_SESSION['theme']?>">
 	<link rel="stylesheet" type="text/css" href="styles/main.css">
 	<script type="text/javascript" src="js/main.js"></script>
+	<script src="https://cloud.tinymce.com/stable/tinymce.min.js?apiKey=fr921eolm9c0bjm0ahtxlm3wjkysiro1w4mxzn0jbw1s1bej"></script>
+	<script>tinymce.init({ selector:'textarea', height : "240" });</script>
 	<title>Lets Make Plans :) </title>
 </head>
 <body>
 	<?php if (isset($_SESSION['email']) && ($userId['userId'] == $post['creatorId'] || $userId['isAdmin']))  :?>
-	<div class="jumbotron">
+	<div class="jumbotron" id="header">
 		<div class="col-lg-12 col-md-4 col-sm-6 col-xs-12">
 			<!-- https://miketricking.github.io/bootstrap-image-hover -->
     		<div class="hovereffect">

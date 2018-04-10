@@ -63,7 +63,7 @@ if(isset($_SESSION['email']))
 if(isset($_POST['submitEvent']))
 {
 	$eventName = filter_var($_POST['eventName'],FILTER_SANITIZE_STRING);
-	$description = filter_var($_POST['description'],FILTER_SANITIZE_STRING);
+	$description = $_POST['description'];
 	
 	$queryEventInsert = "INSERT INTO events (creatorId,eventName,description,approved) VALUES (:userId,:eventName,:description,0);";
 	$statementEventInsert = $db->prepare($queryEventInsert);
@@ -121,7 +121,7 @@ if(isset($_POST['yes']))
 	}
 	else
 	{
-		$_SESSION['error'] = "Sorry you can only vote once.";
+		$_SESSION['error'] = "Sorry you can only vote once on a particular event.";
 	}
 
 }
@@ -140,12 +140,14 @@ if(isset($_POST['yes']))
 	<link rel="stylesheet" type="text/css" href="styles/<?=$_SESSION['theme']?>">
 	<link rel="stylesheet" type="text/css" href="styles/main.css">
 	<script type="text/javascript" src="js/main.js"></script>
+	<script src="https://cloud.tinymce.com/stable/tinymce.min.js?apiKey=fr921eolm9c0bjm0ahtxlm3wjkysiro1w4mxzn0jbw1s1bej"></script>
+	<script>tinymce.init({ selector:'textarea', height : "480" });</script>
 	<title>Lets Make Plans :) </title>
 </head>
 <body>
 	<?php if (isset($_SESSION['email'])) :?>
-	<div class="jumbotron">
-		<div class="col-lg-12 col-md-4 col-sm-6 col-xs-12">
+	<div class="jumbotron fixed" id="header">
+		<div class=" col-lg-12 col-md-4 col-sm-6 col-xs-12">
 			<!-- https://miketricking.github.io/bootstrap-image-hover -->
     		<div class="hovereffect">
         		<img class="img-responsive" src="<?=$_SESSION['profilePicture']?>" alt="">
@@ -158,16 +160,17 @@ if(isset($_POST['yes']))
 						</p>
             	</div>
     		</div>
-		
 		<h1><?=$_SESSION['usersName']?></h1>
 		<h2 class="display-1 text-muted display-4" >Lets make plans...</h2>
+		
 	</div>
     </div>
 </div>
 <div class="row mx-auto">
-	<div class="section col-lg-3 mr-3 border rounded">
+	<div class="section col-lg-3 mx-auto border rounded">
     	<h4 class="mb-3">Make a new Event.</h4>
     	<button class="btn btn-primary mb-3" id="makePlan">Make Plans!</button>
+    	<button class="btn btn-primary mb-3 float-right" id="close" style="display: none;">Close</button>
     	<form enctype="multipart/form-data" method="post" style="display: none;" id="eventForm">
 
     		<h2>Whats the Plan?</h2>
@@ -188,7 +191,7 @@ if(isset($_POST['yes']))
 			</div>
 		</form>
 	</div>
-	<div class='col-lg-6 border section'> 		
+	<div class='col-lg-6 border rounded'> 		
 		<?php if(empty($posts)): ?>
 			<p>Hmm, nothing is here.</p>
 		<?php else: ?>
@@ -210,10 +213,15 @@ if(isset($_POST['yes']))
 				 </div>
 				 <?php endif?>
 				 
-				 <?php foreach ($posts as $post):?>
-				  	<div class="bg-light card p-3 mb-3">
+				 <?php $itemCount = 0; foreach ($posts as $post):?>
+				 	<?php if ($itemCount < 2): ?>
+				  	<div class="bg-light card p-3 mb-3 shownCard">
+				  	<?php else:?>
+				  		<div class="bg-light card p-3 mb-3" id="hiddenCard<?=$itemCount?>"  style="display: none;">
+				  	<?php endif?>
+				  	<?php $itemCount++;?>
 				  		<h5><?=$post['eventName']?></h5>
-				  		<div class="p-3">
+				  		<div class="p-3 eventImage">
 				  			<img class="img-fluid" src="<?=$post['pictureDirectory']?>">
 				  		</div>
 				  		<h6>Description</h6>
@@ -223,7 +231,8 @@ if(isset($_POST['yes']))
 				  				<?php if ($vote['event'] == $post['eventId']) :?>
 				  					<?php $voteSum++;?>
 								<?php endif ?>
-				  			<?php endforeach?>	
+				  			<?php endforeach?>
+				  			<p><?=$voteSum?></p>
 				  		</div>
 				  		<div class="container pl-0">
 							<div class="float-left">		  		
@@ -244,6 +253,13 @@ if(isset($_POST['yes']))
 				 <?php endforeach?>
 			</div>
 		<?php endif ?>
+    </div>
+    <div class="section col-lg-2 mx-auto border rounded float-right">
+    	<h3>Even More!</h3>
+    	<ul class="list-group">
+  			<a href="userEvents.php" class="btn"><li class="list-group-item mt-3">Your Events</li></a>
+  			<a href="bugreport.php" class="btn"><li class="list-group-item mt-3">Report a Bug</li></a>
+		</ul>
     </div>
 </div>
 <?php else: header('Location: index.php');?>

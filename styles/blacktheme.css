@@ -18,6 +18,16 @@ a
 	color: #c51f5d;
 }
 
+li:hover
+{
+	background-color: #c5d0e2;
+}
+
+a:hover
+{
+	color: #c51f5d;
+}
+
 .section
 {
 	background-color: #243447;

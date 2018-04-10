@@ -149,7 +149,7 @@ function setUserSession()
 	<title>Lets Make Plans :) </title>
 </head>
 <body id="background">
-	<div class="jumbotron text-center">
+	<div class="jumbotron text-center" id="header">
 		<h1>Sign Up!</h1>
 	</div>
 	<div class="container">

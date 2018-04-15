@@ -41,7 +41,7 @@ if(isset($_POST['submit']))
 <body>
 	<div class="jumbotron text-center" id="header">
 		<h1>Make Plans - An Event Planer</h1>
-		<img class="img-rounded" src="images/login.jpg">
+		<img class="img-rounded" src="images/login.jpg" alt="Sloth">
 	</div>
 	<div class="container">
 		<div class="row align-items-center justify-content-center">
@@ -49,11 +49,11 @@ if(isset($_POST['submit']))
 				<form method="post">
 					<div class="form-group-row">
 						<label for="email" class="col-form-label">Email</label>
-						<input class="col-md-12 m-auto form-control" type="email" name="email" required>
+						<input id="email"  class="col-md-12 m-auto form-control" type="email" name="email" required>
 					</div>
 					<div class="form-group-row">
 						<label for="password" class=" col-form-label">Password</label>
-						<input class="m-auto col-md form-control" type="password" name="password" required>
+						<input  id="password" class="m-auto col-md form-control" type="password" name="password" required>
 					</div>
 					<div class="form-group-row mt-3">
 						<button type="submit" class="m-auto btn btn-primary" name="submit">

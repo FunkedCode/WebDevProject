@@ -119,6 +119,8 @@ if(isset($_POST['submitEvent']))
 	<link rel="stylesheet" type="text/css" href="styles/<?=$_SESSION['theme']?>">
 	<link rel="stylesheet" type="text/css" href="styles/main.css">
 	<script type="text/javascript" src="js/main.js"></script>
+	<script src="https://cloud.tinymce.com/stable/tinymce.min.js?apiKey=fr921eolm9c0bjm0ahtxlm3wjkysiro1w4mxzn0jbw1s1bej"></script>
+	<script>tinymce.init({ selector:'textarea', height : "480" });</script>
 	<title>Lets Make Plans :) </title>
 </head>
 <body>
@@ -127,7 +129,7 @@ if(isset($_POST['submitEvent']))
 		<div class="col-lg-12 col-md-4 col-sm-6 col-xs-12">
 			<!-- https://miketricking.github.io/bootstrap-image-hover -->
     		<div class="hovereffect">
-        		<img class="img-responsive" src="<?=$_SESSION['profilePicture']?>" alt="">
+        		<img class="img-responsive" src="<?=$_SESSION['profilePicture']?>" alt="Profile Picture">
             	<div class="overlay">
             			<p>
 							<a href="main.php">Home</a>
@@ -145,7 +147,6 @@ if(isset($_POST['submitEvent']))
 		<h2 class="display-1 text-muted display-4" >Lets make plans...</h2>
 	</div>
     </div>
-</div>
 <div class="row mx-auto">
 	<div class="section col-lg-3 mx-auto border rounded">
     	<h4 class="mb-3">Make a new Event.</h4>
@@ -156,7 +157,7 @@ if(isset($_POST['submitEvent']))
 
 			<div class="form-group-row">
 				<label for="eventName" class="col-form-label">Name of Event</label>
-				<input class="col-md-12 m-auto form-control" type="text" name="eventName" required>
+				<input id="eventName" class="col-md-12 m-auto form-control" type="text" name="eventName" required>
 			</div>
 			<div class="form-group-row">
 				<label for="description" class=" col-form-label">Description</label>
@@ -185,7 +186,7 @@ if(isset($_POST['submitEvent']))
 				 	</select>
 				 </div>
 				 </form>
-				<h2>Share and Vote.</h2>
+				<h2>Your Events</h2>
 				<?php if (isset($_SESSION['error'] )) :?>				 
 				  <div class="alert alert-warning">
   					<strong><?=$_SESSION['error']?></strong>
@@ -196,10 +197,10 @@ if(isset($_POST['submitEvent']))
 				  	<div class="bg-light card p-3 mb-3">
 				  		<h5><?=$post['eventName']?></h5>
 				  		<div class="p-3">
-				  			<img class="img-fluid" src="<?=$post['pictureDirectory']?>">
+				  			<img alt="Event Image" class="img-fluid" src="<?=$post['pictureDirectory']?>">
 				  		</div>
 				  		<h6>Description</h6>
-				  		<p><?=$post['description']?></p>		  		
+				  		<?=$post['description']?>		  		
 				  		<div class="mb-3">	  			
 				  			<?php $voteSum = 0; foreach ($votes as $vote) :?>
 				  				<?php if ($vote['event'] == $post['eventId']) :?>
@@ -218,7 +219,7 @@ if(isset($_POST['submitEvent']))
 				  				<h6>Want to do this?</h6>
 				  				<form method="post" class="float-right">
 				  					<input type="submit" class="btn btn-primary input-sm" value="Yes!" name="yes" />
-				  					<input type="hidden" name="eventVoted" id="hiddenField" value="<?=$post['eventId']?>" />
+				  					<input type="hidden" name="eventVoted" value="<?=$post['eventId']?>" />
 				  				</form>
 				  			</div>
 				  		</div>

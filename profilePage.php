@@ -18,6 +18,12 @@ if(isset($_SESSION['email']))
 	$statementId->execute();
 	$userId = $statementId->fetch();
 
+	$queryUserInfo = "SELECT color, profilePicture FROM userPages WHERE creatorId = :userId;";
+	$statementUserInfo = $db->prepare($queryUserInfo);
+	$statementUserInfo->bindValue(':userId', $userId['userId']);
+	$statementUserInfo->execute();
+	$userInfo = $statementUserInfo->fetch();
+
 }
 
 if(isset($_POST['addDate']))
@@ -38,7 +44,7 @@ if(isset($_POST['addDate']))
 
 if(isset($_POST['changeProfile']))
 {
-	$imageDirectory = 'images' . DIRECTORY_SEPARATOR. 'userprofile'.DIRECTORY_SEPARATOR.'default.png';
+	$imageDirectory = $userInfo['profilePicture'];
 	
 	if($_FILES['profilePic']['name'] != '' && $_FILES['profilePic']['error'] == 0)
 	{
@@ -82,7 +88,7 @@ if(isset($_POST['changeProfile']))
 			<div class="col-lg-12 col-md-4 col-sm-6 col-xs-12">
 				<!-- https://miketricking.github.io/bootstrap-image-hover -->
 				<div class="hovereffect">
-					<img class="img-responsive" src="<?=$_SESSION['profilePicture']?>" alt="">
+					<img class="img-responsive" src="<?=$_SESSION['profilePicture']?>" alt="Profile picture">
 					<div class="overlay">
 						<p>
 							<a href="main.php">Home</a>
@@ -97,20 +103,19 @@ if(isset($_POST['changeProfile']))
 				<h2 class="display-1 text-muted display-4" >Lets make plans...</h2>
 			</div>
 		</div>
-	</div>
-	<div class="row">
-		<div class="ml-5 col-lg-6">
+	<div class="row mx-auto">
+		<div class="section col-lg-3 mx-auto border rounded">
 			<form method="post" enctype="multipart/form-data">
 				<div class="form-group-row">
 					<h3 class="">Change it up!</h3>
-					<label for="profilePic" class="pl-1 mb-5 float-left col-md-12 col-form-label">Profile Pic<input class="form-control-file" type="file" name="profilePic" id="profilePic"><img class="pt-3" src="images\userprofile\default.png"></label>					
+					<label for="profilePic" class="pl-1 mb-5 float-left col-md-12 col-form-label">Profile Pic<input class="form-control-file" type="file" name="profilePic" id="profilePic"><img alt="Profile" class="pt-3" src="<?=$userInfo['profilePicture']?>"></label>					
 				</div>
 				<div class="form-group-row mt-3">
 					<div class="radio">
-						<label><input type="radio" name="color" value="white" checked>Classic White</label>
+						<label><input type="radio" name="color" value="white" <?php if($userInfo['color'] == 'white'):?> checked<?php endif?>>Classic White</label>
 					</div>
 					<div class="radio">
-						<label><input type="radio" name="color" value="black" selected>Night</label>
+						<label><input type="radio" name="color" value="black" <?php if($userInfo['color'] == 'black'):?> checked<?php endif?>>Night</label>
 					</div>
 				</div>
 				<div class="form-group-row pt-5">
@@ -125,7 +130,7 @@ if(isset($_POST['changeProfile']))
 					</div>
 				</form>
 			</div>
-			<div class=" col-lg-5">
+			<div class="section col-lg-3 mx-auto border rounded">
 				<h2 class="pb-3 pt-3">When are you Available?</h2>
 				<form method="post">
 					<input id="date" name="date" type="date" min="<?=$date?>" value="<?=$date?>">

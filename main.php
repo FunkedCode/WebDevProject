@@ -105,10 +105,11 @@ if(isset($_POST['submitEvent']))
 //Add a vote
 if(isset($_POST['yes']))
 {
+	$eventId = filter_var($_POST['eventVoted'],FILTER_SANITIZE_STRING);
 	$userVoted = "SELECT 1 FROM votes WHERE user = :userId AND event = :eventId;";
 	$statementUserVoted = $db->prepare($userVoted);
 	$statementUserVoted->bindValue(':userId',$userId['userId']);
-	$statementUserVoted->bindValue(':eventId',$_POST['eventVoted']);
+	$statementUserVoted->bindValue(':eventId',$eventId);
 	$statementUserVoted->execute();
 
 	if($statementUserVoted->rowCount() == 0)
@@ -150,7 +151,7 @@ if(isset($_POST['yes']))
 		<div class=" col-lg-12 col-md-4 col-sm-6 col-xs-12">
 			<!-- https://miketricking.github.io/bootstrap-image-hover -->
     		<div class="hovereffect">
-        		<img class="img-responsive" src="<?=$_SESSION['profilePicture']?>" alt="">
+        		<img class="img-responsive" src="<?=$_SESSION['profilePicture']?>" alt="Profile Picture">
             	<div class="overlay">
 						<p>
 							<a href="profilePage.php">Profile</a>
@@ -161,11 +162,9 @@ if(isset($_POST['yes']))
             	</div>
     		</div>
 		<h1><?=$_SESSION['usersName']?></h1>
-		<h2 class="display-1 text-muted display-4" >Lets make plans...</h2>
-		
+		<h2 class="display-1 text-muted display-4" >Lets make plans...</h2>	
 	</div>
     </div>
-</div>
 <div class="row mx-auto">
 	<div class="section col-lg-3 mx-auto border rounded">
     	<h4 class="mb-3">Make a new Event.</h4>
@@ -177,7 +176,7 @@ if(isset($_POST['yes']))
 
 			<div class="form-group-row">
 				<label for="eventName" class="col-form-label">Name of Event</label>
-				<input class="col-md-12 m-auto form-control" type="text" name="eventName" required>
+				<input id="eventName" class="col-md-12 m-auto form-control" type="text" name="eventName" required>
 			</div>
 			<div class="form-group-row">
 				<label for="description" class=" col-form-label">Description</label>
@@ -222,10 +221,10 @@ if(isset($_POST['yes']))
 				  	<?php $itemCount++;?>
 				  		<h5><?=$post['eventName']?></h5>
 				  		<div class="p-3 eventImage">
-				  			<img class="img-fluid" src="<?=$post['pictureDirectory']?>">
+				  			<img class="img-fluid" src="<?=$post['pictureDirectory']?>" alt="<?=$post['eventName']?>Image">
 				  		</div>
 				  		<h6>Description</h6>
-				  		<p><?=$post['description']?></p>		  		
+				  		<?=$post['description']?>	  		
 				  		<div class="mb-3">	  			
 				  			<?php $voteSum = 0; foreach ($votes as $vote) :?>
 				  				<?php if ($vote['event'] == $post['eventId']) :?>
@@ -245,7 +244,7 @@ if(isset($_POST['yes']))
 				  				<h6>Want to do this?</h6>
 				  				<form method="post" class="float-right">
 				  					<input type="submit" class="btn btn-primary input-sm" value="Yes!" name="yes" />
-				  					<input type="hidden" name="eventVoted" id="hiddenField" value="<?=$post['eventId']?>" />
+				  					<input type="hidden" name="eventVoted" value="<?=$post['eventId']?>" />
 				  				</form>
 				  			</div>
 				  		</div>
@@ -257,6 +256,7 @@ if(isset($_POST['yes']))
     <div class="section col-lg-2 mx-auto border rounded float-right">
     	<h3>Even More!</h3>
     	<ul class="list-group">
+    		<!-- Li tag inside A on purpose -->
   			<a href="userEvents.php" class="btn"><li class="list-group-item mt-3">Your Events</li></a>
   			<a href="bugreport.php" class="btn"><li class="list-group-item mt-3">Report a Bug</li></a>
 		</ul>

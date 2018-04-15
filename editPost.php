@@ -110,14 +110,13 @@ if(isset($_POST['updateEvent']))
 		<h2 class="display-1 text-muted display-4" >Lets make plans...</h2>
 	</div>
     </div>
-</div>
 <div class="row mx-auto">
 	<div class="col-lg-5 mr-1 border mx-auto">
     	<form enctype="multipart/form-data" method="post" id="eventForm">
     		<h2><?=$post['eventName']?></h2>
 			<div class="form-group-row">
 				<label for="eventName" class="col-form-label">Name of Event</label>
-				<input class="col-md-12 m-auto form-control" type="text" name="eventName" required value="<?=$post['eventName']?>">
+				<input id="eventName" class="col-md-12 m-auto form-control" type="text" name="eventName" required value="<?=$post['eventName']?>">
 			</div>
 			<div class="form-group-row">
 				<label for="description" class=" col-form-label">Description</label>
@@ -127,7 +126,7 @@ if(isset($_POST['updateEvent']))
 				<label for="eventPicture" class="pl-0 mb-5 float-left col-md-12 col-form-label">Picture<input class="form-control-file" type="file" name="eventPicture" id="eventPicture"></label>					
 			</div>
 			<div class="form-group-row">
-				<img src="<?=$post['pictureDirectory']?>">			
+				<img alt="Event Picture" src="<?=$post['pictureDirectory']?>">			
 			</div>
 			<div class="form-group-row mt-3 mb-3">
 				<button type="submit" id="updateEvent" class="m-auto btn btn-primary" name="updateEvent">Update</button>

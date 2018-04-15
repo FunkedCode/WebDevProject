@@ -158,27 +158,27 @@ function setUserSession()
 				<form method="post" enctype="multipart/form-data">
 					<div class="form-group-row">
 						<label for="firstName" class="pl-1 col-form-label">First Name</label>
-						<input class="pl-1 m-auto col-md form-control" type="text" name="firstName" required value="<?=$_SESSION['firstName']?>">
+						<input id="firstName" class="pl-1 m-auto col-md form-control" type="text" name="firstName" required value="<?=$_SESSION['firstName']?>">
 					</div>
 					<div class="form-group-row">
 						<label for="lastName" class="pl-1 col-form-label">Last Name</label>
-						<input class="pl-1 m-auto col-md form-control" type="text" name="lastName" value="<?=$_SESSION['lastName']?>" required>
+						<input id="lastName" class="pl-1 m-auto col-md form-control" type="text" name="lastName" value="<?=$_SESSION['lastName']?>" required>
 					</div>
 					<div class="form-group-row">
 						<label for="email" class="pl-1 col-form-label">Email</label>
-						<input class="pl-1 m-auto col-md form-control" type="email" name="email" value="<?=$_SESSION['email']?>" required>
+						<input id="email" class="pl-1 m-auto col-md form-control" type="email" name="email" value="<?=$_SESSION['email']?>" required>
 					</div>
 					<div class="form-group-row">
 						<label for="password" class="pl-1 col-form-label">Password</label>
-						<input class="pl-1 m-auto col-md form-control" type="password" name="password" required>
+						<input id="password" class="pl-1 m-auto col-md form-control" type="password" name="password" required>
 					</div>
 					<div class="form-group-row">
 						<label for="confirm-password" class="pl-1 col-form-label">Confirm Password</label>
-						<input class="m-auto col-md form-control" type="password" name="confirm-password" required>
+						<input id="confirm-password" class="m-auto col-md form-control" type="password" name="confirm-password" required>
 					</div>
 					<div class="form-group-row">
 						<h3 class="pt-5">lets Customize!</h3>
-						<label for="profilePic" class="pl-1 mb-5 float-left col-md-12 col-form-label">Profile Pic<input class="form-control-file" type="file" name="profilePic" id="profilePic"><img class="pt-3" src="images\userprofile\default.png"></label>					
+						<label for="profilePic" class="pl-1 mb-5 float-left col-md-12 col-form-label">Profile Pic<input class="form-control-file" type="file" name="profilePic" id="profilePic"><img class="pt-3" src="images/userprofile/default.png" alt="default image"></label>					
 					</div>
 					<div class="form-group-row mt-3">
 						<div class="radio">
@@ -191,7 +191,7 @@ function setUserSession()
 					<div class="form-group-row mt-3">
 						<label for="captcha">No Robots Allowed!</label>
 						<div class="form-group-row mt-3 mb-3">
-							<img src="<?=$builder->inline(); ?>" />
+							<img src="<?=$builder->inline(); ?>" alt="Captcha" />
 						</div>
 						<input id="captcha" type="text" name="captcha" placeholder="Enter Captcha">
 					</div>

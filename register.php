@@ -185,7 +185,7 @@ function setUserSession()
   							<label><input type="radio" name="color" value="white" checked>Classic White</label>
 						</div>
 						<div class="radio">
-  							<label><input type="radio" name="color" value="black" selected>Night</label>
+  							<label><input type="radio" name="color" value="black">Night</label>
 						</div>
 					</div>
 					<div class="form-group-row mt-3">

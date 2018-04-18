@@ -162,7 +162,8 @@ if(isset($_POST['yes']))
             	</div>
     		</div>
 		<h1><?=$_SESSION['usersName']?></h1>
-		<h2 class="display-1 text-muted display-4" >Lets make plans...</h2>	
+		<h2 class="display-1 text-muted display-4" >Lets make plans...</h2>
+		
 	</div>
     </div>
 <div class="row mx-auto">
@@ -231,6 +232,7 @@ if(isset($_POST['yes']))
 				  					<?php $voteSum++;?>
 								<?php endif ?>
 				  			<?php endforeach?>
+				  			<h5>Votes</h5>
 				  			<p><?=$voteSum?></p>
 				  		</div>
 				  		<div class="container pl-0">
@@ -258,7 +260,7 @@ if(isset($_POST['yes']))
     	<ul class="list-group">
     		<!-- Li tag inside A on purpose -->
   			<a href="userEvents.php" class="btn"><li class="list-group-item mt-3">Your Events</li></a>
-  			<a href="bugreport.php" class="btn"><li class="list-group-item mt-3">Report a Bug</li></a>
+  			<a href="bugreport.php" class="btn" disabled><li class="list-group-item mt-3">Report a Bug</li></a>
 		</ul>
     </div>
 </div>
